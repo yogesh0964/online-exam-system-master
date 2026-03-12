@@ -1,0 +1,6 @@
+/target
+/.idea
+/data
+/uploads
+*.log
+*.class
