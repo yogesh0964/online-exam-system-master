@@ -1,142 +1,516 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Welcome - Online Exam System</title>
+    <title>EduExam — Online Exam System</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
     <style>
-        body {
-            background-color: #f8f9fa;
+        :root {
+            --primary: #6c63ff;
+            --primary-dark: #4f46e5;
+            --accent: #f59e0b;
+            --dark: #0f0e17;
+            --surface: #1a1829;
+            --card: #221f35;
+            --text: #fffffe;
+            --muted: #a7a5be;
+            --success: #10b981;
+            --danger: #ef4444;
         }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--dark);
+            color: var(--text);
+            overflow-x: hidden;
+        }
+        h1, h2, h3, h4, h5 { font-family: 'Syne', sans-serif; }
 
-        /* New Hero Section */
-        .hero-section {
-            padding: 8rem 0;
-            background: linear-gradient(135deg, #0d6efd, #6f42c1);
+        /* NAVBAR */
+        .navbar {
+            background: rgba(15,14,23,0.85) !important;
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(108,99,255,0.15);
+            padding: 1rem 0;
+        }
+        .navbar-brand {
+            font-family: 'Syne', sans-serif;
+            font-weight: 800;
+            font-size: 1.4rem;
+            color: var(--text) !important;
+            letter-spacing: -0.5px;
+        }
+        .navbar-brand span { color: var(--primary); }
+        .nav-link { color: var(--muted) !important; font-weight: 500; transition: color 0.2s; }
+        .nav-link:hover { color: var(--text) !important; }
+        .btn-nav-login {
+            background: transparent;
+            border: 1.5px solid rgba(108,99,255,0.5);
+            color: var(--text) !important;
+            border-radius: 50px;
+            padding: 0.4rem 1.2rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .btn-nav-login:hover { background: var(--primary); border-color: var(--primary); }
+
+        /* HERO */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            padding: 6rem 0 4rem;
+        }
+        .hero-bg {
+            position: absolute; inset: 0;
+            background: radial-gradient(ellipse 80% 60% at 60% 40%, rgba(108,99,255,0.18) 0%, transparent 70%),
+                        radial-gradient(ellipse 50% 50% at 20% 80%, rgba(245,158,11,0.08) 0%, transparent 60%);
+        }
+        .hero-grid {
+            position: absolute; inset: 0;
+            background-image: linear-gradient(rgba(108,99,255,0.04) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(108,99,255,0.04) 1px, transparent 1px);
+            background-size: 60px 60px;
+        }
+        .hero-badge {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            background: rgba(108,99,255,0.15);
+            border: 1px solid rgba(108,99,255,0.3);
+            color: #a5a0ff;
+            padding: 0.35rem 1rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-bottom: 1.5rem;
+            animation: fadeUp 0.6s ease both;
+        }
+        .hero-title {
+            font-size: clamp(2.8rem, 6vw, 5rem);
+            font-weight: 800;
+            line-height: 1.1;
+            letter-spacing: -2px;
+            animation: fadeUp 0.6s ease 0.1s both;
+        }
+        .hero-title .highlight {
+            background: linear-gradient(135deg, var(--primary), #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .hero-sub {
+            font-size: 1.15rem;
+            color: var(--muted);
+            max-width: 500px;
+            line-height: 1.7;
+            margin: 1.5rem 0 2.5rem;
+            animation: fadeUp 0.6s ease 0.2s both;
+        }
+        .hero-btns { animation: fadeUp 0.6s ease 0.3s both; display: flex; gap: 1rem; flex-wrap: wrap; }
+        .btn-primary-custom {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.85rem 2rem;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1rem;
+            font-family: 'DM Sans', sans-serif;
+            text-decoration: none;
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            transition: all 0.25s;
+            box-shadow: 0 8px 25px rgba(108,99,255,0.35);
+        }
+        .btn-primary-custom:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(108,99,255,0.45);
             color: white;
         }
-        .hero-section h1 {
-            font-size: 3.5rem;
-            font-weight: 700;
-        }
-        .hero-section p {
-            font-size: 1.25rem;
-            opacity: 0.9;
-        }
-        .hero-section .btn {
-            font-size: 1.1rem;
-            padding: 0.75rem 1.5rem;
+        .btn-admin-custom {
+            background: rgba(245,158,11,0.1);
+            color: var(--accent);
+            border: 1.5px solid rgba(245,158,11,0.4);
+            padding: 0.85rem 2rem;
+            border-radius: 50px;
             font-weight: 600;
-            border-radius: 50px; /* Pill-shaped buttons */
-            transition: all 0.2s ease;
+            font-size: 1rem;
+            font-family: 'DM Sans', sans-serif;
+            text-decoration: none;
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            transition: all 0.25s;
         }
-        .hero-section .btn-light {
-            color: #0d6efd;
+        .btn-admin-custom:hover {
+            background: rgba(245,158,11,0.2);
+            border-color: var(--accent);
+            transform: translateY(-2px);
+            color: var(--accent);
         }
-        .hero-section .btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        .btn-outline-custom {
+            background: transparent;
+            color: var(--text);
+            border: 1.5px solid rgba(255,255,255,0.15);
+            padding: 0.85rem 2rem;
+            border-radius: 50px;
+            font-weight: 500;
+            font-size: 1rem;
+            font-family: 'DM Sans', sans-serif;
+            text-decoration: none;
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            transition: all 0.25s;
+        }
+        .btn-outline-custom:hover {
+            border-color: rgba(255,255,255,0.4);
+            background: rgba(255,255,255,0.05);
+            color: white;
         }
 
-        /* Feature Cards */
-        .feature-icon {
-            font-size: 3rem;
-            color: #0d6efd;
+        /* STATS BAR */
+        .stats-bar {
+            background: var(--card);
+            border: 1px solid rgba(108,99,255,0.15);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-top: 4rem;
         }
+        .stat-item { text-align: center; }
+        .stat-num { font-family: 'Syne', sans-serif; font-size: 2rem; font-weight: 800; color: var(--primary); }
+        .stat-label { font-size: 0.85rem; color: var(--muted); margin-top: 0.25rem; }
+
+        /* HERO VISUAL */
+        .hero-visual {
+            position: relative;
+            animation: fadeUp 0.8s ease 0.2s both;
+        }
+        .hero-card {
+            background: var(--card);
+            border: 1px solid rgba(108,99,255,0.2);
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+        }
+        .hero-card-mini {
+            background: var(--surface);
+            border: 1px solid rgba(108,99,255,0.15);
+            border-radius: 12px;
+            padding: 1rem 1.2rem;
+            margin-bottom: 0.75rem;
+            display: flex; align-items: center; gap: 1rem;
+            transition: transform 0.2s;
+        }
+        .hero-card-mini:hover { transform: translateX(5px); }
+        .exam-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0; }
+        .score-pill { margin-left: auto; background: rgba(16,185,129,0.15); color: #10b981; padding: 0.2rem 0.7rem; border-radius: 50px; font-size: 0.78rem; font-weight: 600; }
+        .score-pill.pending { background: rgba(245,158,11,0.15); color: var(--accent); }
+        .progress-bar-custom { height: 4px; border-radius: 2px; background: rgba(255,255,255,0.08); margin-top: 0.4rem; }
+        .progress-fill { height: 100%; border-radius: 2px; background: linear-gradient(90deg, var(--primary), #a78bfa); }
+
+        /* FEATURES */
+        .features { padding: 6rem 0; }
+        .section-label { color: var(--primary); font-size: 0.85rem; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 1rem; }
+        .section-title { font-size: clamp(2rem, 4vw, 3rem); font-weight: 800; letter-spacing: -1px; margin-bottom: 1rem; }
         .feature-card {
-            border: 0;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            transition: all 0.2s ease;
+            background: var(--card);
+            border: 1px solid rgba(108,99,255,0.1);
+            border-radius: 20px;
+            padding: 2rem;
+            height: 100%;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
         }
-        .feature-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        .feature-card::before {
+            content: '';
+            position: absolute; inset: 0;
+            background: linear-gradient(135deg, rgba(108,99,255,0.08), transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .feature-card:hover { transform: translateY(-6px); border-color: rgba(108,99,255,0.3); box-shadow: 0 20px 50px rgba(0,0,0,0.3); }
+        .feature-card:hover::before { opacity: 1; }
+        .feature-icon-wrap { width: 56px; height: 56px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-bottom: 1.5rem; }
+        .feature-card h4 { font-size: 1.2rem; font-weight: 700; margin-bottom: 0.75rem; }
+        .feature-card p { color: var(--muted); line-height: 1.7; font-size: 0.95rem; }
+
+        /* HOW IT WORKS */
+        .how { background: var(--surface); padding: 6rem 0; }
+        .step-num { font-family: 'Syne', sans-serif; font-size: 3.5rem; font-weight: 800; color: rgba(108,99,255,0.15); line-height: 1; margin-bottom: 0.5rem; }
+        .step-title { font-size: 1.15rem; font-weight: 700; margin-bottom: 0.5rem; }
+        .step-desc { color: var(--muted); font-size: 0.95rem; line-height: 1.6; }
+        .step-connector { height: 1px; background: linear-gradient(90deg, rgba(108,99,255,0.3), transparent); margin: 0 1rem; flex: 1; margin-top: -2.5rem; }
+
+        /* CTA */
+        .cta-section { padding: 6rem 0; }
+        .cta-box {
+            background: linear-gradient(135deg, rgba(108,99,255,0.2), rgba(79,70,229,0.1));
+            border: 1px solid rgba(108,99,255,0.25);
+            border-radius: 28px;
+            padding: 4rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .cta-box::before {
+            content: '';
+            position: absolute;
+            top: -50%; left: 50%; transform: translateX(-50%);
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(108,99,255,0.15), transparent 70%);
         }
 
-        .footer {
-            background-color: #343a40;
-            color: #adb5bd;
-            padding: 2rem 0;
+        /* FOOTER */
+        footer { border-top: 1px solid rgba(255,255,255,0.06); padding: 2rem 0; text-align: center; color: var(--muted); font-size: 0.9rem; }
+
+        /* ANIMATIONS */
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        .float { animation: float 4s ease-in-out infinite; }
     </style>
 </head>
 <body>
 
-<!-- Navbar is included as usual -->
-<div th:replace="~{fragments :: navbar}"></div>
-
-<!-- --- NEW HERO SECTION --- -->
-<div class="hero-section text-center">
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg fixed-top">
     <div class="container">
-        <h1 class="display-4">Welcome to the Online Exam System</h1>
-        <p class="lead mb-4">The all-in-one platform for students and administrators.
-            <br>Test your knowledge, review your results, and manage exams with ease.
-            <br> Developed by Sumit From LazyCoder
-        </p>
-        <!--
-          These buttons are for GUESTS only.
-          Logged-in users will be redirected to their dashboard by the controller.
-        -->
-        <div>
-            <a th:href="@{/login}" class="btn btn-light btn-lg m-2">
-                <i class="bi bi-box-arrow-in-right me-2"></i>Login
-            </a>
-            <a th:href="@{/register}" class="btn btn-outline-light btn-lg m-2">
-                <i class="bi bi-person-plus-fill me-2"></i>Create Account
-            </a>
+        <a class="navbar-brand" href="#">Edu<span>Exam</span></a>
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="nav">
+            <ul class="navbar-nav ms-auto me-3 gap-2">
+                <li class="nav-item"><a class="nav-link" href="#features">Features</a></li>
+                <li class="nav-item"><a class="nav-link" href="#how">How it works</a></li>
+            </ul>
+            <div class="d-flex gap-2">
+                <a th:href="@{/login}" class="btn-nav-login btn">Student Login</a>
+                <a th:href="@{/login?role=admin}" style="background:rgba(245,158,11,0.15);border:1.5px solid rgba(245,158,11,0.4);color:#f59e0b;border-radius:50px;padding:0.4rem 1.2rem;font-weight:600;text-decoration:none;font-size:0.9rem;transition:all 0.2s;" onmouseover="this.style.background='rgba(245,158,11,0.3)'" onmouseout="this.style.background='rgba(245,158,11,0.15)'">
+                    <i class="bi bi-shield-lock-fill me-1"></i>Admin
+                </a>
+            </div>
         </div>
     </div>
-</div>
+</nav>
 
-<!-- --- NEW FEATURES SECTION --- -->
-<div class="container mt-5 py-5">
-    <div class="row text-center g-4">
-
-        <!-- Feature Card 1: For Students -->
-        <div class="col-md-4">
-            <div class="card feature-card h-100">
-                <div class="card-body p-5">
-                    <div class="feature-icon mb-3">
-                        <i class="bi bi-person-check-fill"></i>
+<!-- HERO -->
+<section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-grid"></div>
+    <div class="container position-relative">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6">
+                <div class="hero-badge">
+                    <i class="bi bi-stars"></i> Smart Online Examination Platform
+                </div>
+                <h1 class="hero-title">
+                    Ace Every <span class="highlight">Exam</span><br>With Confidence
+                </h1>
+                <p class="hero-sub">Take timed exams, track your progress, review answers, and improve with every attempt. Your learning journey starts here.</p>
+                <div class="hero-btns">
+                    <a th:href="@{/register}" class="btn-primary-custom">
+                        <i class="bi bi-person-plus-fill"></i> Get Started Free
+                    </a>
+                    <a th:href="@{/login}" class="btn-outline-custom">
+                        <i class="bi bi-box-arrow-in-right"></i> Student Login
+                    </a>
+                    <a th:href="@{/login?role=admin}" class="btn-admin-custom">
+                        <i class="bi bi-shield-lock-fill"></i> Admin Login
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="hero-visual float">
+                    <div class="hero-card">
+                        <div class="d-flex align-items-center mb-3">
+                            <div style="width:10px;height:10px;border-radius:50%;background:#ef4444;margin-right:6px;"></div>
+                            <div style="width:10px;height:10px;border-radius:50%;background:#f59e0b;margin-right:6px;"></div>
+                            <div style="width:10px;height:10px;border-radius:50%;background:#10b981;"></div>
+                            <span style="margin-left:auto;color:var(--muted);font-size:0.8rem;">My Exams</span>
+                        </div>
+                        <div class="hero-card-mini">
+                            <div class="exam-icon" style="background:rgba(108,99,255,0.15);color:var(--primary);">📐</div>
+                            <div>
+                                <div style="font-weight:600;font-size:0.95rem;">Mathematics</div>
+                                <div style="color:var(--muted);font-size:0.78rem;">45 min • 30 questions</div>
+                                <div class="progress-bar-custom"><div class="progress-fill" style="width:85%"></div></div>
+                            </div>
+                            <div class="score-pill">85%</div>
+                        </div>
+                        <div class="hero-card-mini">
+                            <div class="exam-icon" style="background:rgba(16,185,129,0.15);color:#10b981;">💻</div>
+                            <div>
+                                <div style="font-weight:600;font-size:0.95rem;">Java Programming</div>
+                                <div style="color:var(--muted);font-size:0.78rem;">60 min • 40 questions</div>
+                                <div class="progress-bar-custom"><div class="progress-fill" style="width:92%;background:linear-gradient(90deg,#10b981,#34d399)"></div></div>
+                            </div>
+                            <div class="score-pill">92%</div>
+                        </div>
+                        <div class="hero-card-mini">
+                            <div class="exam-icon" style="background:rgba(245,158,11,0.15);color:var(--accent);">🧪</div>
+                            <div>
+                                <div style="font-weight:600;font-size:0.95rem;">Physics</div>
+                                <div style="color:var(--muted);font-size:0.78rem;">30 min • 20 questions</div>
+                                <div class="progress-bar-custom"><div class="progress-fill" style="width:0%"></div></div>
+                            </div>
+                            <div class="score-pill pending">Pending</div>
+                        </div>
                     </div>
-                    <h4 class="card-title">For Students</h4>
-                    <p class="card-text">Take timed exams, get instant scores, and review your answers. Track your progress with our performance dashboard and charts.</p>
                 </div>
             </div>
         </div>
 
-        <!-- Feature Card 2: For Admins -->
-        <div class="col-md-4">
-            <div class="card feature-card h-100">
-                <div class="card-body p-5">
-                    <div class="feature-icon mb-3">
-                        <i class="bi bi-person-workspace"></i>
-                    </div>
-                    <h4 class="card-title">For Admins</h4>
-                    <p class="card-text">Create, edit, and manage all your exams. Add questions, manage student accounts, and view detailed analytics for every test.</p>
+        <!-- Stats -->
+        <div class="stats-bar mt-5">
+            <div class="row g-4">
+                <div class="col-6 col-md-3 stat-item">
+                    <div class="stat-num">500+</div>
+                    <div class="stat-label">Students Enrolled</div>
+                </div>
+                <div class="col-6 col-md-3 stat-item">
+                    <div class="stat-num">50+</div>
+                    <div class="stat-label">Exams Available</div>
+                </div>
+                <div class="col-6 col-md-3 stat-item">
+                    <div class="stat-num">99%</div>
+                    <div class="stat-label">Uptime</div>
+                </div>
+                <div class="col-6 col-md-3 stat-item">
+                    <div class="stat-num">100%</div>
+                    <div class="stat-label">Free to Use</div>
                 </div>
             </div>
         </div>
+    </div>
+</section>
 
-        <!-- Feature Card 3: Secure & Reliable -->
-        <div class="col-md-4">
-            <div class="card feature-card h-100">
-                <div class="card-body p-5">
-                    <div class="feature-icon mb-3">
+<!-- FEATURES -->
+<section class="features" id="features">
+    <div class="container">
+        <div class="text-center mb-5">
+            <div class="section-label">Features</div>
+            <h2 class="section-title">Everything You Need to <span style="color:var(--primary)">Succeed</span></h2>
+            <p style="color:var(--muted);max-width:500px;margin:0 auto;">Powerful tools for students and admins, built to make online examination effortless.</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon-wrap" style="background:rgba(108,99,255,0.15);color:var(--primary);">
+                        <i class="bi bi-clock-fill"></i>
+                    </div>
+                    <h4>Live Timer</h4>
+                    <p>Auto-submitting countdown timer ensures fairness. Never lose your answers — they're saved automatically before time runs out.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon-wrap" style="background:rgba(16,185,129,0.15);color:#10b981;">
+                        <i class="bi bi-bar-chart-fill"></i>
+                    </div>
+                    <h4>Instant Results</h4>
+                    <p>Get your score the moment you submit. See what you got right and wrong, and review every question with detailed explanations.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon-wrap" style="background:rgba(245,158,11,0.15);color:var(--accent);">
+                        <i class="bi bi-trophy-fill"></i>
+                    </div>
+                    <h4>Progress Tracking</h4>
+                    <p>Beautiful performance charts show your improvement over time. Track your average score, highest score, and exam history.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon-wrap" style="background:rgba(239,68,68,0.15);color:#ef4444;">
                         <i class="bi bi-shield-lock-fill"></i>
                     </div>
-                    <h4 class="card-title">Secure & Reliable</h4>
-                    <p class="card-text">Your data is secure and your progress is saved. Our system features a reliable auto-submitting timer so you never lose your work.</p>
+                    <h4>Secure & Safe</h4>
+                    <p>Spring Security powered authentication keeps your data safe. Role-based access ensures students only see what's meant for them.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon-wrap" style="background:rgba(168,85,247,0.15);color:#a855f7;">
+                        <i class="bi bi-person-workspace"></i>
+                    </div>
+                    <h4>Admin Control</h4>
+                    <p>Full CRUD for exams and questions. Manage student accounts, reset passwords, view all submissions in one dashboard.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon-wrap" style="background:rgba(14,165,233,0.15);color:#0ea5e9;">
+                        <i class="bi bi-phone-fill"></i>
+                    </div>
+                    <h4>Mobile Friendly</h4>
+                    <p>Fully responsive design works perfectly on any device — take exams on your phone, tablet, or desktop with ease.</p>
                 </div>
             </div>
         </div>
     </div>
-</div>
+</section>
 
-<footer class="footer mt-auto">
-    <div class="container text-center">
-        <p class="mb-0">© 2025 Online Exam System. All Rights Reserved. LazyCoder</p>
+<!-- HOW IT WORKS -->
+<section class="how" id="how">
+    <div class="container">
+        <div class="text-center mb-5">
+            <div class="section-label">Process</div>
+            <h2 class="section-title">How It <span style="color:var(--primary)">Works</span></h2>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-3 text-center">
+                <div class="step-num">01</div>
+                <div class="step-title">Create Account</div>
+                <div class="step-desc">Register with your email. Takes less than a minute. No credit card needed.</div>
+            </div>
+            <div class="col-md-3 text-center">
+                <div class="step-num">02</div>
+                <div class="step-title">Choose an Exam</div>
+                <div class="step-desc">Browse available exams from your dashboard. See duration and question count.</div>
+            </div>
+            <div class="col-md-3 text-center">
+                <div class="step-num">03</div>
+                <div class="step-title">Take the Test</div>
+                <div class="step-desc">Answer questions with a live timer. Navigate freely between questions.</div>
+            </div>
+            <div class="col-md-3 text-center">
+                <div class="step-num">04</div>
+                <div class="step-title">Get Results</div>
+                <div class="step-desc">Instant score with detailed review. Track your growth over time.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+    <div class="container">
+        <div class="cta-box">
+            <h2 class="section-title position-relative">Ready to Start Your Journey?</h2>
+            <p style="color:var(--muted);max-width:450px;margin:0 auto 2rem;" class="position-relative">Join hundreds of students already using EduExam to prepare and succeed.</p>
+            <div class="d-flex gap-3 justify-content-center flex-wrap position-relative">
+                <a th:href="@{/register}" class="btn-primary-custom">
+                    <i class="bi bi-rocket-takeoff-fill"></i> Create Free Account
+                </a>
+                <a th:href="@{/login?role=admin}" class="btn-admin-custom">
+                    <i class="bi bi-shield-lock-fill"></i> Admin Login
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<footer>
+    <div class="container">
+        <p>© 2025 EduExam — Online Exam System. Built with ❤️ by LazyCoder</p>
     </div>
 </footer>
 

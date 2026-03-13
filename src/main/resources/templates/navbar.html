@@ -2,94 +2,183 @@
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
-    <!-- We can add a <style> tag for the profile picture -->
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
     <style>
-        .navbar-profile-pic {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%; /* Makes it round */
-            object-fit: cover;   /* Ensures the image covers the area */
-            margin-right: 8px;
-            border: 1px solid #ddd;
+        .edu-navbar {
+            background: rgba(15,14,23,0.9) !important;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(108,99,255,0.12);
+            padding: 0.75rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
         }
+        .edu-brand {
+            font-family: 'Syne', sans-serif !important;
+            font-weight: 800 !important;
+            font-size: 1.35rem !important;
+            color: #fffffe !important;
+            letter-spacing: -0.5px;
+            text-decoration: none;
+        }
+        .edu-brand span { color: #6c63ff; }
+        .edu-navbar .nav-link {
+            color: #a7a5be !important;
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 500;
+            font-size: 0.92rem;
+            padding: 0.4rem 0.8rem !important;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+        .edu-navbar .nav-link:hover { color: #fffffe !important; background: rgba(255,255,255,0.05); }
+        .edu-navbar .nav-link.active-link { color: #fffffe !important; }
+
+        /* Admin link */
+        .admin-nav-link {
+            color: #f59e0b !important;
+            background: rgba(245,158,11,0.08) !important;
+            border: 1px solid rgba(245,158,11,0.2) !important;
+            border-radius: 50px !important;
+            padding: 0.35rem 0.9rem !important;
+            font-weight: 600 !important;
+        }
+        .admin-nav-link:hover { background: rgba(245,158,11,0.18) !important; color: #f59e0b !important; }
+
+        /* Profile dropdown */
+        .nav-avatar {
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid rgba(108,99,255,0.4);
+        }
+        .nav-avatar-placeholder {
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6c63ff, #a78bfa);
+            display: inline-flex; align-items: center; justify-content: center;
+            font-size: 0.9rem; color: white; font-weight: 700;
+            border: 2px solid rgba(108,99,255,0.4);
+        }
+        .edu-navbar .dropdown-menu {
+            background: #1a1829;
+            border: 1px solid rgba(108,99,255,0.15);
+            border-radius: 12px;
+            padding: 0.5rem;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            min-width: 180px;
+        }
+        .edu-navbar .dropdown-item {
+            color: #a7a5be;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            padding: 0.5rem 0.8rem;
+            transition: all 0.2s;
+            font-family: 'DM Sans', sans-serif;
+        }
+        .edu-navbar .dropdown-item:hover { background: rgba(108,99,255,0.1); color: #fffffe; }
+        .edu-navbar .dropdown-item.text-danger-custom { color: #fca5a5 !important; }
+        .edu-navbar .dropdown-item.text-danger-custom:hover { background: rgba(239,68,68,0.1); }
+        .dropdown-divider-custom { border-color: rgba(255,255,255,0.07); margin: 0.3rem 0; }
+        .username-display { font-size: 0.85rem; color: #6c63ff; font-weight: 600; padding: 0.4rem 0.8rem 0.2rem; }
+
+        /* Logout btn */
+        #logoutForm { display: none; }
+
+        /* Toggle */
+        .navbar-toggler { border: 1px solid rgba(255,255,255,0.1) !important; }
+        .navbar-toggler-icon { filter: invert(1); }
     </style>
 </head>
 <body>
 
-<!-- th:fragment="navbar" defines a reusable fragment -->
-<nav th:fragment="navbar" class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" th:href="@{/}">Online Exam System</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
-                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+<nav th:fragment="navbar" class="navbar navbar-expand-lg edu-navbar">
+    <div class="container">
+        <a class="edu-brand" th:href="@{/}">Edu<span>Exam</span></a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#eduNav">
             <span class="navbar-toggler-icon"></span>
         </button>
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <li class="nav-item">
-                    <a class="nav-link" th:href="@{/}">Home</a>
-                </li>
-
+        <div class="collapse navbar-collapse" id="eduNav">
+            <ul class="navbar-nav me-auto ms-3 gap-1">
                 <!-- Admin Links -->
                 <li class="nav-item" sec:authorize="hasRole('ADMIN')">
-                    <a class="nav-link" th:href="@{/admin/dashboard}">Manage Exams</a>
+                    <a class="nav-link" th:href="@{/admin/dashboard}">
+                        <i class="bi bi-grid-fill me-1"></i>Dashboard
+                    </a>
                 </li>
                 <li class="nav-item" sec:authorize="hasRole('ADMIN')">
-                    <a class="nav-link" th:href="@{/admin/students}">Manage Students</a>
+                    <a class="nav-link" th:href="@{/admin/manage-exams}">
+                        <i class="bi bi-journal-text me-1"></i>Manage Exams
+                    </a>
+                </li>
+                <li class="nav-item" sec:authorize="hasRole('ADMIN')">
+                    <a class="nav-link" th:href="@{/admin/students}">
+                        <i class="bi bi-people-fill me-1"></i>Students
+                    </a>
                 </li>
 
                 <!-- Student Links -->
                 <li class="nav-item" sec:authorize="hasRole('STUDENT')">
-                    <a class="nav-link" th:href="@{/student/dashboard}">Dashboard</a>
+                    <a class="nav-link" th:href="@{/student/dashboard}">
+                        <i class="bi bi-house-fill me-1"></i>Dashboard
+                    </a>
                 </li>
                 <li class="nav-item" sec:authorize="hasRole('STUDENT')">
-                    <a class="nav-link" th:href="@{/student/my-results}">My Results</a>
-                </li>
-
-                <!-- Admin Panel Link (visible to ADMIN role) -->
-                <li class="nav-item" sec:authorize="hasRole('ADMIN')">
-                    <a class="nav-link fw-bold text-warning" th:href="@{/admin/dashboard}">
-                        ⚙️ Admin Panel
+                    <a class="nav-link" th:href="@{/student/my-results}">
+                        <i class="bi bi-bar-chart-fill me-1"></i>My Results
                     </a>
                 </li>
             </ul>
 
-            <!-- Login/Register/Logout Links -->
-            <ul class="navbar-nav ms-auto">
+            <ul class="navbar-nav ms-auto align-items-center gap-2">
+                <!-- Not logged in -->
                 <li class="nav-item" sec:authorize="!isAuthenticated()">
-                    <a class="nav-link" th:href="@{/login}">Login</a>
+                    <a class="nav-link" th:href="@{/login}">Sign In</a>
                 </li>
                 <li class="nav-item" sec:authorize="!isAuthenticated()">
-                    <a class="nav-link" th:href="@{/register}">Create Account</a>
+                    <a th:href="@{/register}" style="background:#6c63ff;color:white;border-radius:50px;padding:0.4rem 1.2rem;font-size:0.9rem;font-weight:600;text-decoration:none;transition:all 0.2s;" onmouseover="this.style.background='#4f46e5'" onmouseout="this.style.background='#6c63ff'">
+                        Get Started
+                    </a>
                 </li>
 
-                <!-- If user is authenticated -->
+                <!-- Admin Panel link for ADMIN role -->
+                <li class="nav-item" sec:authorize="hasRole('ADMIN')">
+                    <a class="nav-link admin-nav-link" th:href="@{/admin/dashboard}">
+                        <i class="bi bi-shield-lock-fill me-1"></i>Admin Panel
+                    </a>
+                </li>
+
+                <!-- Logged in user dropdown -->
                 <li class="nav-item dropdown" sec:authorize="isAuthenticated()">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <!-- --- NEW PROFILE PIC DISPLAY --- -->
-
-                        <!-- 1. If user has a profile pic -->
+                    <a class="nav-link dropdown-toggle d-flex align-items-center gap-2" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
                         <img th:if="${globalProfilePicUrl != null}"
                              th:src="@{${globalProfilePicUrl}}"
-                             alt="Profile"
-                             class="navbar-profile-pic">
-
-                        <!-- 2. If user does NOT have a pic, show a default icon -->
-                        <svg th:if="${globalProfilePicUrl == null}"
-                             xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor"
-                             class="bi bi-person-circle navbar-profile-pic" viewBox="0 0 16 16"
-                             style="background-color: white;">
-                            <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
-                            <path fill-rule="evenodd"
-                                  d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"/>
-                        </svg>
-
-                        <span sec:authentication="name"></span>
+                             alt="Profile" class="nav-avatar">
+                        <div th:if="${globalProfilePicUrl == null}" class="nav-avatar-placeholder">
+                            <i class="bi bi-person-fill"></i>
+                        </div>
+                        <span style="color:#fffffe;font-size:0.9rem;" sec:authentication="name"></span>
                     </a>
-                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><div class="username-display" sec:authentication="name"></div></li>
+                        <li><hr class="dropdown-divider dropdown-divider-custom"></li>
+                        <li sec:authorize="hasRole('STUDENT')">
+                            <a class="dropdown-item" th:href="@{/student/profile}">
+                                <i class="bi bi-person-fill me-2"></i>My Profile
+                            </a>
+                        </li>
+                        <li sec:authorize="hasRole('STUDENT')">
+                            <a class="dropdown-item" th:href="@{/student/my-results}">
+                                <i class="bi bi-trophy-fill me-2"></i>My Results
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider dropdown-divider-custom"></li>
                         <li>
-                            <a class="dropdown-item" href="javascript:document.getElementById('logoutForm').submit();">Logout</a>
-                            <form th:action="@{/logout}" method="post" id="logoutForm" class="d-none"></form>
+                            <a class="dropdown-item text-danger-custom" href="javascript:document.getElementById('logoutForm').submit();">
+                                <i class="bi bi-box-arrow-right me-2"></i>Logout
+                            </a>
+                            <form th:action="@{/logout}" method="post" id="logoutForm"></form>
                         </li>
                     </ul>
                 </li>
