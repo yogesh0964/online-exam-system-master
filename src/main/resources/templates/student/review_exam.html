@@ -1,172 +1,158 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-  <title>Review Exam: <span th:text="${exam.title}"></span></title>
+  <title>Review Exam — EduExam</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <!-- Import Bootstrap Icons -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
   <style>
-        body {
-            background-color: #f8f9fa; /* Light gray background */
-        }
-        .review-header {
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            margin-bottom: 2rem;
-            padding: 1.5rem;
-            border: 1px solid #e9ecef;
-        }
-        .question-card {
-            margin-bottom: 20px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            border: 0;
-            border-radius: 8px;
-        }
-        .question-card .card-header {
-            background-color: #f8f9fa;
-            border-bottom: 1px solid #dee2e6;
-            font-size: 1.1rem;
-            font-weight: 600;
-        }
+    :root{--primary:#6c63ff;--success:#10b981;--danger:#ef4444;--dark:#0f0e17;--surface:#1a1829;--card:#221f35;--text:#fffffe;--muted:#a7a5be;--border:rgba(108,99,255,0.12);}
+    *{box-sizing:border-box;} body{font-family:'DM Sans',sans-serif;background:var(--dark);color:var(--text);min-height:100vh;} h1,h2,h3,h4,h5{font-family:'Syne',sans-serif;} .main{padding:2rem 0 4rem;}
 
-        /* This is the base style for an option */
-        .review-option {
-            display: flex;
-            align-items: center;
-            padding: 0.75rem 1.25rem;
-            border: 1px solid #e9ecef;
-            border-radius: 8px;
-            margin-top: 10px;
-            background-color: #fff;
-        }
-        .review-option .form-check-input {
-            margin-top: 0;
-            transform: scale(1.2);
-            margin-right: 10px;
-        }
-        .review-option .form-check-label {
-            width: 100%;
-        }
+    /* REVIEW HEADER */
+    .review-header{background:linear-gradient(135deg,rgba(108,99,255,0.14),rgba(108,99,255,0.04));border:1px solid var(--border);border-radius:20px;padding:1.75rem 2rem;margin-bottom:2rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;}
+    .review-header-left h1{font-size:1.5rem;font-weight:800;margin:0 0 0.2rem;letter-spacing:-0.5px;}
+    .review-header-left p{color:var(--muted);font-size:0.88rem;margin:0;}
+    .score-display{text-align:center;}
+    .score-display .score-num{font-family:'Syne',sans-serif;font-size:2.5rem;font-weight:800;line-height:1;}
+    .score-display .score-label{color:var(--muted);font-size:0.8rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;}
 
-        /* This style is for the option the student CHOSE */
-        .wrong-answer {
-            background-color: #f8d7da; /* Light red */
-            border-color: #f5c2c7;
-        }
-        .wrong-answer .form-check-label::after {
-            content: ' (Your Answer)';
-            color: #721c24;
-            font-weight: bold;
-            float: right;
-        }
+    /* QUESTION CARDS */
+    .q-card{background:var(--card);border:1px solid var(--border);border-radius:18px;overflow:hidden;margin-bottom:1.25rem;}
+    .q-card-header{padding:1rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:0.75rem;}
+    .q-num{background:rgba(108,99,255,0.15);color:#a78bfa;border-radius:8px;padding:0.22rem 0.75rem;font-size:0.78rem;font-weight:700;font-family:'Syne',sans-serif;}
+    .q-marks{background:rgba(245,158,11,0.12);color:#fcd34d;border-radius:50px;padding:0.18rem 0.65rem;font-size:0.75rem;font-weight:700;margin-left:auto;}
+    .q-card-body{padding:1.5rem;}
+    .q-text{font-size:1rem;font-weight:500;line-height:1.6;margin-bottom:1.25rem;}
 
-        /* This style is for the CORRECT option */
-        .correct-answer {
-            background-color: #d1e7dd; /* Light green */
-            border-color: #badbcc;
-        }
-        .correct-answer .form-check-label::after {
-            content: ' (Correct Answer)';
-            color: #0f5132;
-            font-weight: bold;
-            float: right;
-        }
+    /* REVIEW OPTIONS */
+    .review-option{display:flex;align-items:center;gap:0.9rem;border-radius:12px;padding:0.85rem 1.1rem;margin-bottom:0.5rem;border:1.5px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.02);transition:none;position:relative;}
+    .review-option:last-child{margin-bottom:0;}
+    .opt-indicator{width:22px;height:22px;border-radius:50%;border:2px solid rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:0.72rem;font-weight:800;color:var(--muted);}
+    .opt-text-inner{font-size:0.9rem;font-weight:500;flex:1;}
+    .opt-tag{margin-left:auto;font-size:0.72rem;font-weight:700;border-radius:50px;padding:0.18rem 0.65rem;flex-shrink:0;}
 
-        /* This handles the case where the student CHOSE the correct answer */
-        .correct-answer.wrong-answer .form-check-label::after {
-             content: ' (Correct & Your Answer)';
-        }
+    /* CORRECT */
+    .opt-correct{background:rgba(16,185,129,0.1);border-color:rgba(16,185,129,0.3);}
+    .opt-correct .opt-indicator{border-color:#10b981;background:rgba(16,185,129,0.2);color:#6ee7b7;}
+    .opt-correct .opt-text-inner{color:#6ee7b7;}
+    .opt-correct .opt-tag{background:rgba(16,185,129,0.2);color:#6ee7b7;}
 
-        .unanswered {
-            font-style: italic;
-            color: #6c757d;
-            padding: 0.75rem 1.25rem;
-        }
-    </style>
+    /* WRONG (student chose wrong) */
+    .opt-wrong{background:rgba(239,68,68,0.08);border-color:rgba(239,68,68,0.25);}
+    .opt-wrong .opt-indicator{border-color:#ef4444;background:rgba(239,68,68,0.15);color:#fca5a5;}
+    .opt-wrong .opt-text-inner{color:#fca5a5;}
+    .opt-wrong .opt-tag{background:rgba(239,68,68,0.15);color:#fca5a5;}
+
+    /* CORRECT AND STUDENT CHOSE IT */
+    .opt-correct-chosen{background:rgba(16,185,129,0.15);border-color:#10b981;}
+    .opt-correct-chosen .opt-indicator{border-color:#10b981;background:#10b981;color:white;}
+    .opt-correct-chosen .opt-text-inner{color:#6ee7b7;font-weight:600;}
+    .opt-correct-chosen .opt-tag{background:rgba(16,185,129,0.25);color:#6ee7b7;}
+
+    /* UNANSWERED */
+    .unanswered-msg{background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);border-radius:10px;padding:0.75rem 1rem;color:#fcd34d;font-size:0.85rem;display:flex;align-items:center;gap:0.5rem;margin-top:0.75rem;}
+
+    /* SUMMARY STRIP */
+    .summary-strip{display:flex;gap:1rem;margin-bottom:1.75rem;flex-wrap:wrap;}
+    .sum-chip{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:0.85rem 1.2rem;display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;font-weight:600;}
+    .sum-chip i{font-size:1rem;}
+
+    /* BACK BTN */
+    .btn-back{background:rgba(255,255,255,0.07);color:var(--muted);border:none;border-radius:50px;padding:0.6rem 1.5rem;font-size:0.9rem;font-weight:700;font-family:'Syne',sans-serif;text-decoration:none;display:inline-flex;align-items:center;gap:0.4rem;transition:all 0.2s;margin-top:0.5rem;}
+    .btn-back:hover{background:rgba(255,255,255,0.12);color:var(--text);}
+  </style>
 </head>
 <body>
 <div th:replace="~{fragments :: navbar}"></div>
+<div class="container main">
 
-<div class="container my-5">
-
-  <!-- --- NEW: DECORATED HEADER --- -->
+  <!-- REVIEW HEADER -->
   <div class="review-header">
-    <div class="row align-items-center">
-      <div class="col-md-8">
-        <h1 class="mb-1" th:text="${exam.title}">Exam Title</h1>
-        <p class="text-muted fs-5 mb-0">Reviewing your results</p>
-      </div>
-      <div class="col-md-4 text-md-end">
-        <div class="text-muted">Your Score</div>
-        <div class="display-4 fw-bold"
-             th:classappend="${((result.scoreAchieved * 100.0) / result.totalMarks) >= 70 ? 'text-success' : 'text-danger'}"
-             th:text="${result.scoreAchieved} + ' / ' + ${result.totalMarks}">
-        </div>
-      </div>
+    <div class="review-header-left">
+      <h1 th:text="${exam.title}">Exam Title</h1>
+      <p>Reviewing your submitted answers</p>
     </div>
-  </div>
-  <!-- --- END OF HEADER --- -->
-
-
-  <!-- Loop through questions -->
-  <div th:each="question, iter : ${questions}" class="card question-card">
-    <div class="card-header">
-      <h5 th:text="|Question ${iter.count} (Marks: ${question.marks})|">Question</h5>
-    </div>
-    <div class="card-body">
-      <p class="card-text fs-5" th:text="${question.text}">Question text goes here...</p>
-
-      <!-- Get student's answer for this question from the Map -->
-      <th:block th:with="studentOpt=${studentAnswers.get(question.id)}">
-
-
-        <!-- Display Option 1 -->
-        <div class="review-option"
-             th:classappend="${question.correctAnswer == 1 ? 'correct-answer' : ''} + ${studentOpt == 1 ? ' wrong-answer' : ''}">
-          <input class="form-check-input" type="radio" disabled th:checked="${studentOpt == 1}">
-          <label class="form-check-label" th:text="${question.option1}">Option 1</label>
-        </div>
-
-        <!-- Display Option 2 -->
-        <div class="review-option"
-             th:classappend="${question.correctAnswer == 2 ? 'correct-answer' : ''} + ${studentOpt == 2 ? ' wrong-answer' : ''}">
-          <input class="form-check-input" type="radio" disabled th:checked="${studentOpt == 2}">
-          <label class="form-check-label" th:text="${question.option2}">Option 2</label>
-        </div>
-
-        <!-- Display Option 3 -->
-        <div class="review-option"
-             th:classappend="${question.correctAnswer == 3 ? 'correct-answer' : ''} + ${studentOpt == 3 ? ' wrong-answer' : ''}">
-          <input class="form-check-input" type="radio" disabled th:checked="${studentOpt == 3}">
-          <label class="form-check-label" th:text="${question.option3}">Option 3</label>
-        </div>
-
-        <!-- Display Option 4 -->
-        <div class="review-option"
-             th:classappend="${question.correctAnswer == 4 ? 'correct-answer' : ''} + ${studentOpt == 4 ? ' wrong-answer' : ''}">
-          <input class="form-check-input" type="radio" disabled th:checked="${studentOpt == 4}">
-          <label class="form-check-label" th:text="${question.option4}">Option 4</label>
-        </div>
-
-        <!-- Unanswered -->
-        <div th:if="${studentOpt == 0 or studentOpt == null}" class="p-3 mt-3 unanswered">
-          <i class="bi bi-exclamation-circle me-2"></i>You did not answer this question.
-        </div>
-
-      </th:block>
+    <div class="score-display" th:with="pct=${result.totalMarks > 0 ? result.scoreAchieved * 100.0 / result.totalMarks : 0}">
+      <div class="score-num" th:style="${pct >= 70 ? 'color:#10b981' : 'color:#ef4444'}"
+           th:text="${result.scoreAchieved} + ' / ' + ${result.totalMarks}">0/0</div>
+      <div class="score-label">Total Score</div>
     </div>
   </div>
 
-  <div class="text-center my-5">
-    <a th:href="@{/student/my-results}" class="btn btn-primary btn-lg">
-      <i class="bi bi-arrow-left-circle me-2"></i>Back to Results
-    </a>
+  <!-- SUMMARY CHIPS -->
+  <div class="summary-strip" th:with="pct=${result.totalMarks > 0 ? result.scoreAchieved * 100.0 / result.totalMarks : 0}">
+    <div class="sum-chip"><i class="bi bi-list-check" style="color:var(--primary);"></i> <span th:text="${#lists.size(questions)} + ' Questions'">0</span></div>
+    <div class="sum-chip"><i class="bi bi-trophy-fill" style="color:var(--accent);"></i> <span th:text="${#numbers.formatDecimal(pct,1,1) + '%'}">0%</span></div>
+    <div class="sum-chip" th:if="${pct >= 50}" style="color:#6ee7b7;"><i class="bi bi-check-circle-fill" style="color:#10b981;"></i> Passed</div>
+    <div class="sum-chip" th:unless="${pct >= 50}" style="color:#fca5a5;"><i class="bi bi-x-circle-fill" style="color:#ef4444;"></i> Failed</div>
+  </div>
+
+  <!-- QUESTIONS -->
+  <div th:each="question, iter : ${questions}">
+    <div class="q-card">
+      <div class="q-card-header">
+        <span class="q-num" th:text="'Q ' + ${iter.count}">Q 1</span>
+        <span class="q-marks"><i class="bi bi-star-fill me-1"></i><span th:text="${question.marks}">1</span> mark</span>
+      </div>
+      <div class="q-card-body">
+        <p class="q-text" th:text="${question.text}">Question</p>
+        <th:block th:with="studentOpt=${studentAnswers.get(question.id)}">
+
+          <!-- OPTION 1 -->
+          <div th:with="isCorrect=${question.correctAnswer == 1}, isChosen=${studentOpt == 1}"
+               th:class="${isCorrect and isChosen ? 'review-option opt-correct-chosen' : (isCorrect ? 'review-option opt-correct' : (isChosen ? 'review-option opt-wrong' : 'review-option'))}">
+            <div class="opt-indicator" th:text="${isCorrect or isChosen ? (isCorrect and isChosen ? '✓' : (isChosen ? '✗' : '✓')) : 'A'}">A</div>
+            <span class="opt-text-inner" th:text="${question.option1}">Option 1</span>
+            <span th:if="${isCorrect and isChosen}" class="opt-tag">✓ Correct Answer</span>
+            <span th:if="${isChosen and !isCorrect}" class="opt-tag">✗ Your Answer</span>
+            <span th:if="${isCorrect and !isChosen}" class="opt-tag">✓ Correct</span>
+          </div>
+
+          <!-- OPTION 2 -->
+          <div th:with="isCorrect=${question.correctAnswer == 2}, isChosen=${studentOpt == 2}"
+               th:class="${isCorrect and isChosen ? 'review-option opt-correct-chosen' : (isCorrect ? 'review-option opt-correct' : (isChosen ? 'review-option opt-wrong' : 'review-option'))}">
+            <div class="opt-indicator" th:text="${isCorrect or isChosen ? (isCorrect and isChosen ? '✓' : (isChosen ? '✗' : '✓')) : 'B'}">B</div>
+            <span class="opt-text-inner" th:text="${question.option2}">Option 2</span>
+            <span th:if="${isCorrect and isChosen}" class="opt-tag">✓ Correct Answer</span>
+            <span th:if="${isChosen and !isCorrect}" class="opt-tag">✗ Your Answer</span>
+            <span th:if="${isCorrect and !isChosen}" class="opt-tag">✓ Correct</span>
+          </div>
+
+          <!-- OPTION 3 -->
+          <div th:with="isCorrect=${question.correctAnswer == 3}, isChosen=${studentOpt == 3}"
+               th:class="${isCorrect and isChosen ? 'review-option opt-correct-chosen' : (isCorrect ? 'review-option opt-correct' : (isChosen ? 'review-option opt-wrong' : 'review-option'))}">
+            <div class="opt-indicator" th:text="${isCorrect or isChosen ? (isCorrect and isChosen ? '✓' : (isChosen ? '✗' : '✓')) : 'C'}">C</div>
+            <span class="opt-text-inner" th:text="${question.option3}">Option 3</span>
+            <span th:if="${isCorrect and isChosen}" class="opt-tag">✓ Correct Answer</span>
+            <span th:if="${isChosen and !isCorrect}" class="opt-tag">✗ Your Answer</span>
+            <span th:if="${isCorrect and !isChosen}" class="opt-tag">✓ Correct</span>
+          </div>
+
+          <!-- OPTION 4 -->
+          <div th:with="isCorrect=${question.correctAnswer == 4}, isChosen=${studentOpt == 4}"
+               th:class="${isCorrect and isChosen ? 'review-option opt-correct-chosen' : (isCorrect ? 'review-option opt-correct' : (isChosen ? 'review-option opt-wrong' : 'review-option'))}">
+            <div class="opt-indicator" th:text="${isCorrect or isChosen ? (isCorrect and isChosen ? '✓' : (isChosen ? '✗' : '✓')) : 'D'}">D</div>
+            <span class="opt-text-inner" th:text="${question.option4}">Option 4</span>
+            <span th:if="${isCorrect and isChosen}" class="opt-tag">✓ Correct Answer</span>
+            <span th:if="${isChosen and !isCorrect}" class="opt-tag">✗ Your Answer</span>
+            <span th:if="${isCorrect and !isChosen}" class="opt-tag">✓ Correct</span>
+          </div>
+
+          <!-- UNANSWERED -->
+          <div th:if="${studentOpt == 0 or studentOpt == null}" class="unanswered-msg">
+            <i class="bi bi-exclamation-triangle-fill"></i> You did not answer this question.
+          </div>
+        </th:block>
+      </div>
+    </div>
+  </div>
+
+  <div style="text-align:center;margin-top:1.5rem;">
+    <a th:href="@{/student/my-results}" class="btn-back"><i class="bi bi-arrow-left"></i> Back to My Results</a>
   </div>
 
 </div>
-
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
