@@ -45,6 +45,13 @@
                 <li class="nav-item" sec:authorize="hasRole('STUDENT')">
                     <a class="nav-link" th:href="@{/student/my-results}">My Results</a>
                 </li>
+
+                <!-- Admin Panel Link (visible to ADMIN role) -->
+                <li class="nav-item" sec:authorize="hasRole('ADMIN')">
+                    <a class="nav-link fw-bold text-warning" th:href="@{/admin/dashboard}">
+                        ⚙️ Admin Panel
+                    </a>
+                </li>
             </ul>
 
             <!-- Login/Register/Logout Links -->
