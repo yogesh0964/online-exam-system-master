@@ -1,80 +1,235 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Add Question</title>
+    <title>Add Question — EduExam</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root{--primary:#6c63ff;--primary-dark:#4f46e5;--success:#10b981;--dark:#0f0e17;--surface:#1a1829;--card:#221f35;--text:#fffffe;--muted:#a7a5be;--border:rgba(108,99,255,0.12);}
+        *{box-sizing:border-box;}
+        body{font-family:'DM Sans',sans-serif;background:var(--dark);color:var(--text);min-height:100vh;}
+        h1,h2,h3{font-family:'Syne',sans-serif;}
+        .main{padding:2rem 0 4rem;}
+        .breadcrumb-dark{display:flex;align-items:center;gap:0.5rem;margin-bottom:1.5rem;font-size:0.85rem;color:var(--muted);flex-wrap:wrap;}
+        .breadcrumb-dark a{color:var(--muted);text-decoration:none;}
+        .breadcrumb-dark a:hover{color:var(--text);}
+        .breadcrumb-dark i.sep{font-size:0.7rem;opacity:0.5;}
+
+        .alert-success-dark{background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);color:#6ee7b7;border-radius:12px;padding:0.85rem 1.2rem;margin-bottom:1.5rem;display:flex;align-items:center;justify-content:space-between;}
+
+        /* PAGE HEADER */
+        .page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem;}
+        .page-header h2{font-size:1.5rem;font-weight:800;margin:0;letter-spacing:-0.5px;}
+        .page-header p{color:var(--muted);margin:0.2rem 0 0;font-size:0.88rem;}
+        .btn-manage{background:rgba(108,99,255,0.15);color:#a78bfa;border:1px solid rgba(108,99,255,0.25);border-radius:50px;padding:0.5rem 1.2rem;font-size:0.85rem;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:0.4rem;transition:all 0.2s;}
+        .btn-manage:hover{background:rgba(108,99,255,0.25);color:#a78bfa;}
+
+        /* MAIN LAYOUT */
+        .form-layout{display:grid;grid-template-columns:1fr 340px;gap:1.5rem;}
+        @media(max-width:900px){.form-layout{grid-template-columns:1fr;}}
+
+        .form-card{background:var(--card);border:1px solid var(--border);border-radius:18px;overflow:hidden;}
+        .form-card-header{padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);}
+        .form-card-header h5{font-size:0.8rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin:0;}
+        .form-card-body{padding:1.5rem;}
+
+        .field-group{margin-bottom:1.25rem;}
+        .field-label{font-size:0.78rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.6px;display:block;margin-bottom:0.45rem;}
+        .field-input,.field-textarea{width:100%;background:var(--surface);border:1.5px solid rgba(255,255,255,0.07);color:var(--text);padding:0.8rem 1rem;border-radius:11px;font-size:0.92rem;font-family:'DM Sans',sans-serif;transition:all 0.2s;resize:vertical;}
+        .field-input:focus,.field-textarea:focus{outline:none;border-color:var(--primary);background:rgba(108,99,255,0.05);box-shadow:0 0 0 4px rgba(108,99,255,0.1);color:var(--text);}
+        .field-input::placeholder,.field-textarea::placeholder{color:rgba(167,165,190,0.5);}
+        .options-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+        @media(max-width:600px){.options-grid{grid-template-columns:1fr;}}
+
+        /* OPTION LABELS */
+        .option-label-wrap{display:flex;align-items:center;gap:0.5rem;margin-bottom:0.45rem;}
+        .option-num{width:22px;height:22px;border-radius:50%;background:rgba(108,99,255,0.2);color:#a78bfa;display:flex;align-items:center;justify-content:center;font-size:0.72rem;font-weight:800;flex-shrink:0;}
+
+        /* CORRECT ANSWER BUTTONS */
+        .answer-btns{display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.5rem;}
+        .answer-btn{width:48px;height:48px;border-radius:12px;border:1.5px solid rgba(255,255,255,0.1);background:var(--surface);color:var(--muted);font-size:1rem;font-weight:700;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;}
+        .answer-btn:hover{border-color:rgba(16,185,129,0.4);color:#6ee7b7;background:rgba(16,185,129,0.08);}
+        .answer-btn.selected{border-color:var(--success);background:rgba(16,185,129,0.15);color:#6ee7b7;}
+        .answer-hint{font-size:0.78rem;color:var(--muted);margin-top:0.5rem;}
+        #correctAnswerInput{display:none;}
+
+        /* MARKS */
+        .marks-row{display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.5rem;}
+        .marks-btn{padding:0.4rem 0.9rem;border-radius:50px;border:1.5px solid rgba(255,255,255,0.1);background:var(--surface);color:var(--muted);font-size:0.85rem;font-weight:600;cursor:pointer;transition:all 0.2s;}
+        .marks-btn:hover{border-color:rgba(245,158,11,0.4);color:#fcd34d;}
+        .marks-btn.selected{border-color:#f59e0b;background:rgba(245,158,11,0.12);color:#fcd34d;}
+        #marksInput{display:none;}
+
+        /* PREVIEW CARD */
+        .preview-card{background:var(--surface);border:1px solid rgba(108,99,255,0.1);border-radius:16px;padding:1.25rem;position:sticky;top:80px;}
+        .preview-card h6{font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:1rem;}
+        .prev-question{font-size:0.95rem;font-weight:500;margin-bottom:1rem;min-height:40px;color:var(--text);}
+        .prev-option{display:flex;align-items:center;gap:0.6rem;padding:0.5rem 0.75rem;border-radius:9px;margin-bottom:0.4rem;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.05);font-size:0.85rem;color:var(--muted);}
+        .prev-option.correct{background:rgba(16,185,129,0.1);border-color:rgba(16,185,129,0.25);color:#6ee7b7;}
+        .prev-opt-num{width:20px;height:20px;border-radius:50%;background:rgba(108,99,255,0.2);color:#a78bfa;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:800;flex-shrink:0;}
+        .prev-marks-badge{display:inline-flex;align-items:center;gap:0.3rem;background:rgba(245,158,11,0.12);color:#fcd34d;border-radius:50px;padding:0.25rem 0.7rem;font-size:0.78rem;font-weight:700;margin-top:0.75rem;}
+
+        /* SUBMIT */
+        .btn-add-q{width:100%;background:var(--primary);color:white;border:none;border-radius:12px;padding:0.9rem;font-size:0.95rem;font-weight:700;font-family:'Syne',sans-serif;cursor:pointer;transition:all 0.25s;display:flex;align-items:center;justify-content:center;gap:0.5rem;box-shadow:0 6px 20px rgba(108,99,255,0.3);}
+        .btn-add-q:hover{background:var(--primary-dark);transform:translateY(-2px);}
+    </style>
 </head>
 <body>
-
 <div th:replace="~{fragments :: navbar}"></div>
+<div class="container main">
 
-<main class="container mt-5">
-
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2>Add Question for Exam (ID: <span th:text="${examId}">1</span>)</h2>
-        <a th:href="@{/admin/exam/manage-questions/{id}(id=${examId})}" class="btn btn-secondary">
-            Manage Questions
-        </a >
+    <!-- BREADCRUMB -->
+    <div class="breadcrumb-dark">
+        <a th:href="@{/admin/dashboard}"><i class="bi bi-house-fill"></i> Dashboard</a>
+        <i class="bi bi-chevron-right sep"></i>
+        <a th:href="@{/admin/manage-exams}">Manage Exams</a>
+        <i class="bi bi-chevron-right sep"></i>
+        <a th:href="@{/admin/exam/manage-questions/{id}(id=${examId})}">Questions</a>
+        <i class="bi bi-chevron-right sep"></i>
+        <span style="color:var(--text);">Add Question</span>
     </div>
 
-
-    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
-        <span th:text="${successMessage}"></span>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    <!-- SUCCESS ALERT -->
+    <div th:if="${successMessage}" class="alert-success-dark">
+        <span><i class="bi bi-check-circle-fill me-2"></i><span th:text="${successMessage}"></span></span>
+        <button style="background:none;border:none;color:#6ee7b7;cursor:pointer;" onclick="this.parentElement.remove()"><i class="bi bi-x"></i></button>
     </div>
 
+    <!-- PAGE HEADER -->
+    <div class="page-header">
+        <div>
+            <h2>Add Question</h2>
+            <p>Exam ID: <span th:text="${examId}">1</span> — fill the form and the preview updates live</p>
+        </div>
+        <a th:href="@{/admin/exam/manage-questions/{id}(id=${examId})}" class="btn-manage">
+            <i class="bi bi-list-task"></i> Manage Questions
+        </a>
+    </div>
 
-    <form th:action="@{/admin/exam/question/add}" th:object="${question}" method="post" class="mt-4">
+    <!-- LAYOUT -->
+    <div class="form-layout">
 
-        <input type="hidden" name="examId" th:value="${examId}" />
+        <!-- LEFT: FORM -->
+        <div>
+            <form th:action="@{/admin/exam/question/add}" th:object="${question}" method="post" id="qForm">
+                <input type="hidden" name="examId" th:value="${examId}"/>
+                <input type="hidden" id="correctAnswerInput" th:field="*{correctAnswer}" required/>
+                <input type="hidden" id="marksInput" th:field="*{marks}" required/>
 
-        <!-- Question Text -->
-        <div class="mb-3">
-            <label for="text" class="form-label">Question Text</label>
-            <textarea class="form-control" id="text" th:field="*{text}" rows="3" required></textarea>
+                <!-- QUESTION TEXT -->
+                <div class="form-card">
+                    <div class="form-card-header"><h5><i class="bi bi-question-circle-fill me-2" style="color:var(--primary)"></i>Question Text</h5></div>
+                    <div class="form-card-body">
+                        <div class="field-group" style="margin:0;">
+                            <textarea class="field-textarea" th:field="*{text}" rows="3" placeholder="Type your question here..." required
+                                      oninput="updatePreview()"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- OPTIONS -->
+                <div class="form-card" style="margin-top:1rem;">
+                    <div class="form-card-header"><h5><i class="bi bi-list-ul me-2" style="color:var(--success)"></i>Answer Options</h5></div>
+                    <div class="form-card-body">
+                        <div class="options-grid">
+                            <div class="field-group">
+                                <div class="option-label-wrap"><div class="option-num">1</div><label class="field-label" style="margin:0;">Option 1</label></div>
+                                <input type="text" class="field-input" th:field="*{option1}" placeholder="First option" required oninput="updatePreview()">
+                            </div>
+                            <div class="field-group">
+                                <div class="option-label-wrap"><div class="option-num">2</div><label class="field-label" style="margin:0;">Option 2</label></div>
+                                <input type="text" class="field-input" th:field="*{option2}" placeholder="Second option" required oninput="updatePreview()">
+                            </div>
+                            <div class="field-group">
+                                <div class="option-label-wrap"><div class="option-num">3</div><label class="field-label" style="margin:0;">Option 3</label></div>
+                                <input type="text" class="field-input" th:field="*{option3}" placeholder="Third option" required oninput="updatePreview()">
+                            </div>
+                            <div class="field-group">
+                                <div class="option-label-wrap"><div class="option-num">4</div><label class="field-label" style="margin:0;">Option 4</label></div>
+                                <input type="text" class="field-input" th:field="*{option4}" placeholder="Fourth option" required oninput="updatePreview()">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CORRECT ANSWER + MARKS -->
+                <div class="form-card" style="margin-top:1rem;">
+                    <div class="form-card-header"><h5><i class="bi bi-check-circle-fill me-2" style="color:#10b981"></i>Correct Answer & Marks</h5></div>
+                    <div class="form-card-body">
+                        <div class="field-group">
+                            <label class="field-label">Correct Answer</label>
+                            <div class="answer-btns">
+                                <button type="button" class="answer-btn" onclick="setAnswer(1)">1</button>
+                                <button type="button" class="answer-btn" onclick="setAnswer(2)">2</button>
+                                <button type="button" class="answer-btn" onclick="setAnswer(3)">3</button>
+                                <button type="button" class="answer-btn" onclick="setAnswer(4)">4</button>
+                            </div>
+                            <div class="answer-hint">Click the correct option number</div>
+                        </div>
+                        <div class="field-group" style="margin-bottom:0;">
+                            <label class="field-label">Marks for this Question</label>
+                            <div class="marks-row">
+                                <button type="button" class="marks-btn" onclick="setMarks(1)">1</button>
+                                <button type="button" class="marks-btn" onclick="setMarks(2)">2</button>
+                                <button type="button" class="marks-btn" onclick="setMarks(5)">5</button>
+                                <button type="button" class="marks-btn" onclick="setMarks(10)">10</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-add-q" style="margin-top:1rem;">
+                    <i class="bi bi-plus-circle-fill"></i> Add Question
+                </button>
+            </form>
         </div>
 
-        <div class="row">
-            <div class="col-md-6 mb-3">
-                <label for="option1" class="form-label">Option 1</label>
-                <input type="text" class="form-control" id="option1" th:field="*{option1}" required>
-            </div>
-            <div class="col-md-6 mb-3">
-                <label for="option2" class="form-label">Option 2</label>
-                <input type="text" class="form-control" id="option2" th:field="*{option2}" required>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-6 mb-3">
-                <label for="option3" class="form-label">Option 3</label>
-                <input type="text" class="form-control" id="option3" th:field="*{option3}" required>
-            </div>
-            <div class="col-md-6 mb-3">
-                <label for="option4" class="form-label">Option 4</label>
-                <input type="text" class="form-control" id="option4" th:field="*{option4}" required>
+        <!-- RIGHT: PREVIEW -->
+        <div>
+            <div class="preview-card">
+                <h6>📋 Live Preview</h6>
+                <div class="prev-question" id="prevQ">Your question will appear here...</div>
+                <div id="prevOptions">
+                    <div class="prev-option" id="po1"><div class="prev-opt-num">1</div><span id="pt1">Option 1</span></div>
+                    <div class="prev-option" id="po2"><div class="prev-opt-num">2</div><span id="pt2">Option 2</span></div>
+                    <div class="prev-option" id="po3"><div class="prev-opt-num">3</div><span id="pt3">Option 3</span></div>
+                    <div class="prev-option" id="po4"><div class="prev-opt-num">4</div><span id="pt4">Option 4</span></div>
+                </div>
+                <div><span class="prev-marks-badge" id="prevMarks"><i class="bi bi-star-fill"></i> 0 marks</span></div>
             </div>
         </div>
-
-        <hr>
-
-        <div class="row">
-            <div class="col-md-6 mb-3">
-                <label for="correctAnswer" class="form-label">Correct Answer (1-4)</label>
-                <input type="number" class="form-control" id="correctAnswer" th:field="*{correctAnswer}" min="1" max="4" required>
-            </div>
-            <div class="col-md-6 mb-3">
-                <label for="marks" class="form-label">Marks</label>
-                <input type="number" class="form-control" id="marks" th:field="*{marks}" min="1" required>
-            </div>
-        </div>
-
-        <button type="submit" class="btn btn-primary">Add Question</button><br>
-    </form>
-
-
-<br>
-</main>
+    </div>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    let selectedAnswer = 0, selectedMarks = 0;
+
+    function setAnswer(n) {
+        selectedAnswer = n;
+        document.getElementById('correctAnswerInput').value = n;
+        document.querySelectorAll('.answer-btn').forEach((b,i) => b.classList.toggle('selected', i+1===n));
+        updatePreview();
+    }
+    function setMarks(n) {
+        selectedMarks = n;
+        document.getElementById('marksInput').value = n;
+        document.querySelectorAll('.marks-btn').forEach(b => b.classList.toggle('selected', parseInt(b.textContent)===n));
+        document.getElementById('prevMarks').innerHTML = '<i class="bi bi-star-fill"></i> ' + n + ' mark' + (n>1?'s':'');
+    }
+    function updatePreview() {
+        const q = document.getElementById('question_text')?.value || document.querySelector('textarea')?.value || '';
+        document.getElementById('prevQ').textContent = q || 'Your question will appear here...';
+        ['1','2','3','4'].forEach(n => {
+            const inp = document.getElementById('option'+n);
+            if(inp) {
+                document.getElementById('pt'+n).textContent = inp.value || 'Option '+n;
+                const po = document.getElementById('po'+n);
+                po.classList.toggle('correct', parseInt(n) === selectedAnswer);
+            }
+        });
+    }
+</script>
 </body>
 </html>

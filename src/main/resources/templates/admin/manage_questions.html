@@ -1,77 +1,147 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-  <title>Manage Questions</title>
+  <title>Manage Questions — EduExam</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root{--primary:#6c63ff;--primary-dark:#4f46e5;--accent:#f59e0b;--success:#10b981;--danger:#ef4444;--dark:#0f0e17;--surface:#1a1829;--card:#221f35;--text:#fffffe;--muted:#a7a5be;--border:rgba(108,99,255,0.12);}
+    *{box-sizing:border-box;}
+    body{font-family:'DM Sans',sans-serif;background:var(--dark);color:var(--text);min-height:100vh;}
+    h1,h2,h3{font-family:'Syne',sans-serif;}
+    .main{padding:2rem 0 4rem;}
+
+    .breadcrumb-dark{display:flex;align-items:center;gap:0.5rem;margin-bottom:1.5rem;font-size:0.85rem;color:var(--muted);flex-wrap:wrap;}
+    .breadcrumb-dark a{color:var(--muted);text-decoration:none;}
+    .breadcrumb-dark a:hover{color:var(--text);}
+    .breadcrumb-dark i.sep{font-size:0.7rem;opacity:0.5;}
+
+    .alert-error-dark{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#fca5a5;border-radius:12px;padding:0.85rem 1.2rem;margin-bottom:1.5rem;display:flex;align-items:center;justify-content:space-between;}
+    .alert-success-dark{background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);color:#6ee7b7;border-radius:12px;padding:0.85rem 1.2rem;margin-bottom:1.5rem;display:flex;align-items:center;justify-content:space-between;}
+
+    /* HEADER */
+    .page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem;}
+    .page-header-left{display:flex;align-items:center;gap:1rem;}
+    .exam-badge{background:rgba(108,99,255,0.12);border:1px solid rgba(108,99,255,0.2);color:#a78bfa;border-radius:50px;padding:0.3rem 1rem;font-size:0.82rem;font-weight:600;}
+    .page-header h2{font-size:1.5rem;font-weight:800;margin:0;letter-spacing:-0.5px;}
+    .page-header p{color:var(--muted);font-size:0.88rem;margin:0.2rem 0 0;}
+    .btn-add-q{background:var(--primary);color:white;border:none;border-radius:50px;padding:0.55rem 1.3rem;font-size:0.88rem;font-weight:700;font-family:'Syne',sans-serif;text-decoration:none;display:inline-flex;align-items:center;gap:0.4rem;transition:all 0.2s;box-shadow:0 4px 15px rgba(108,99,255,0.3);}
+    .btn-add-q:hover{background:var(--primary-dark);color:white;transform:translateY(-1px);}
+
+    /* QUESTIONS LIST */
+    .q-card{background:var(--card);border:1px solid var(--border);border-radius:16px;margin-bottom:1rem;overflow:hidden;transition:all 0.2s;}
+    .q-card:hover{border-color:rgba(108,99,255,0.25);transform:translateX(3px);}
+    .q-card-top{padding:1.25rem 1.5rem;display:flex;align-items:flex-start;gap:1rem;}
+    .q-num{width:36px;height:36px;border-radius:10px;background:rgba(108,99,255,0.15);color:#a78bfa;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:0.9rem;flex-shrink:0;}
+    .q-body{flex:1;min-width:0;}
+    .q-text{font-weight:600;font-size:0.95rem;margin-bottom:0.6rem;line-height:1.5;}
+    .q-options{display:grid;grid-template-columns:1fr 1fr;gap:0.3rem 1rem;}
+    @media(max-width:500px){.q-options{grid-template-columns:1fr;}}
+    .q-option{display:flex;align-items:center;gap:0.5rem;font-size:0.82rem;color:var(--muted);}
+    .q-option.is-correct{color:#6ee7b7;}
+    .q-opt-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.15);flex-shrink:0;}
+    .q-option.is-correct .q-opt-dot{background:var(--success);}
+    .q-card-footer{padding:0.75rem 1.5rem;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.5rem;}
+    .q-meta{display:flex;align-items:center;gap:1rem;}
+    .marks-pill{background:rgba(245,158,11,0.12);color:#fcd34d;border-radius:50px;padding:0.2rem 0.7rem;font-size:0.78rem;font-weight:700;display:inline-flex;align-items:center;gap:0.3rem;}
+    .correct-pill{background:rgba(16,185,129,0.12);color:#6ee7b7;border-radius:50px;padding:0.2rem 0.7rem;font-size:0.78rem;font-weight:700;display:inline-flex;align-items:center;gap:0.3rem;}
+    .q-actions{display:flex;gap:0.4rem;}
+    .btn-edit-q{background:rgba(245,158,11,0.12);color:#fcd34d;border:none;border-radius:8px;padding:0.35rem 0.85rem;font-size:0.8rem;font-weight:600;cursor:pointer;transition:all 0.15s;text-decoration:none;display:inline-flex;align-items:center;gap:0.3rem;}
+    .btn-edit-q:hover{background:rgba(245,158,11,0.25);color:#fcd34d;}
+    .btn-del-q{background:rgba(239,68,68,0.12);color:#fca5a5;border:none;border-radius:8px;padding:0.35rem 0.85rem;font-size:0.8rem;font-weight:600;cursor:pointer;transition:all 0.15s;text-decoration:none;display:inline-flex;align-items:center;gap:0.3rem;}
+    .btn-del-q:hover{background:rgba(239,68,68,0.25);color:#fca5a5;}
+
+    /* EMPTY */
+    .empty-state{text-align:center;padding:4rem 2rem;color:var(--muted);}
+    .empty-state i{font-size:3rem;display:block;margin-bottom:0.75rem;opacity:0.25;}
+
+    /* BACK BTN */
+    .btn-back{background:rgba(255,255,255,0.06);color:var(--muted);border:none;border-radius:50px;padding:0.55rem 1.3rem;font-size:0.88rem;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:0.4rem;transition:all 0.2s;margin-top:1.5rem;}
+    .btn-back:hover{background:rgba(255,255,255,0.1);color:var(--text);}
+  </style>
 </head>
 <body>
 <div th:replace="~{fragments :: navbar}"></div>
+<div class="container main">
 
-<div class="container mt-5">
-
-  <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
-    <strong>Error:</strong> <span th:text="${errorMessage}"></span>
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  <div class="breadcrumb-dark">
+    <a th:href="@{/admin/dashboard}"><i class="bi bi-house-fill"></i> Dashboard</a>
+    <i class="bi bi-chevron-right sep"></i>
+    <a th:href="@{/admin/manage-exams}">Manage Exams</a>
+    <i class="bi bi-chevron-right sep"></i>
+    <span style="color:var(--text);" th:text="${exam.title}">Exam</span>
   </div>
 
-  <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
-    <span th:text="${successMessage}"></span>
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  <!-- ALERTS -->
+  <div th:if="${errorMessage}" class="alert-error-dark">
+    <span><i class="bi bi-exclamation-circle-fill me-2"></i><span th:text="${errorMessage}"></span></span>
+    <button style="background:none;border:none;color:inherit;cursor:pointer;" onclick="this.parentElement.remove()"><i class="bi bi-x"></i></button>
+  </div>
+  <div th:if="${successMessage}" class="alert-success-dark">
+    <span><i class="bi bi-check-circle-fill me-2"></i><span th:text="${successMessage}"></span></span>
+    <button style="background:none;border:none;color:inherit;cursor:pointer;" onclick="this.parentElement.remove()"><i class="bi bi-x"></i></button>
   </div>
 
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <h2 th:text="|Manage Questions For Exam: ${exam.title}|">Manage Questions</h2>
-    <a th:href="@{/admin/exam/{id}/question/add(id=${exam.id})}" class="btn btn-primary">
-      <i class="bi bi-plus-circle-fill me-2"></i>Add New Question
+  <!-- HEADER -->
+  <div class="page-header">
+    <div class="page-header-left">
+      <div>
+        <div style="margin-bottom:0.4rem;"><span class="exam-badge"><i class="bi bi-journal-text me-1"></i><span th:text="${exam.title}">Exam</span></span></div>
+        <h2>Manage Questions</h2>
+        <p><span th:text="${#lists.size(questions)}">0</span> questions in this exam</p>
+      </div>
+    </div>
+    <a th:href="@{/admin/exam/{id}/question/add(id=${exam.id})}" class="btn-add-q">
+      <i class="bi bi-plus-circle-fill"></i> Add New Question
     </a>
   </div>
 
-  <div class="card shadow-sm">
-    <div class="card-body">
-      <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
-          <thead class="table-light">
-          <tr>
-            <th scope="col" style="width: 50%;">Question Text</th>
-            <th scope="col">Marks</th>
-            <th scope="col">Correct Answer</th>
-            <th scope="col">Actions</th>
-          </tr>
-          </thead>
-          <tbody>
-          <tr th:each="q : ${questions}">
-            <td th:text="${q.text}">This is a sample question...</td>
-            <td th:text="${q.marks}">5</td>
-            <td th:text="${q.correctAnswer}">1</td>
-            <td>
-              <!-- Edit Question Button -->
-              <a th:href="@{/admin/question/edit/{id}(id=${q.id})}"
-                 class="btn btn-sm btn-warning me-1" title="Edit Question">
-                <i class="bi bi-pencil-fill"></i>
-              </a>
+  <!-- EMPTY -->
+  <div th:if="${#lists.isEmpty(questions)}" class="empty-state">
+    <i class="bi bi-question-circle"></i>
+    No questions yet. Click "Add New Question" to get started.
+  </div>
 
-              <!-- Delete Question Button -->
-              <a th:href="@{/admin/exam/{examId}/question/delete/{qId}(examId=${exam.id}, qId=${q.id})}"
-                 class="btn btn-sm btn-danger" title="Delete Question"
-                 onclick="return confirm('Are you sure you want to delete this question?');">
-                <i class="bi bi-trash-fill"></i>
-              </a>
-            </td>
-          </tr>
-          </tbody>
-        </table>
+  <!-- QUESTIONS -->
+  <div th:each="q, iterStat : ${questions}">
+    <div class="q-card">
+      <div class="q-card-top">
+        <div class="q-num" th:text="${iterStat.count}">1</div>
+        <div class="q-body">
+          <div class="q-text" th:text="${q.text}">Question text here</div>
+          <div class="q-options">
+            <div th:class="${q.correctAnswer == 1 ? 'q-option is-correct' : 'q-option'}">
+              <div class="q-opt-dot"></div><span><strong>1.</strong> <span th:text="${q.option1}">Option 1</span></span>
+            </div>
+            <div th:class="${q.correctAnswer == 2 ? 'q-option is-correct' : 'q-option'}">
+              <div class="q-opt-dot"></div><span><strong>2.</strong> <span th:text="${q.option2}">Option 2</span></span>
+            </div>
+            <div th:class="${q.correctAnswer == 3 ? 'q-option is-correct' : 'q-option'}">
+              <div class="q-opt-dot"></div><span><strong>3.</strong> <span th:text="${q.option3}">Option 3</span></span>
+            </div>
+            <div th:class="${q.correctAnswer == 4 ? 'q-option is-correct' : 'q-option'}">
+              <div class="q-opt-dot"></div><span><strong>4.</strong> <span th:text="${q.option4}">Option 4</span></span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="q-card-footer">
+        <div class="q-meta">
+          <span class="marks-pill"><i class="bi bi-star-fill"></i> <span th:text="${q.marks}">1</span> marks</span>
+          <span class="correct-pill"><i class="bi bi-check-circle-fill"></i> Ans: <span th:text="${q.correctAnswer}">1</span></span>
+        </div>
+        <div class="q-actions">
+          <a th:href="@{/admin/question/edit/{id}(id=${q.id})}" class="btn-edit-q"><i class="bi bi-pencil-fill"></i> Edit</a>
+          <a th:href="@{/admin/exam/{examId}/question/delete/{qId}(examId=${exam.id}, qId=${q.id})}" class="btn-del-q"
+             onclick="return confirm('Delete this question?')"><i class="bi bi-trash-fill"></i> Delete</a>
+        </div>
       </div>
     </div>
   </div>
 
-  <div class="mt-4">
-    <a th:href="@{/admin/manage-exams}" class="btn btn-secondary">
-      <i class="bi bi-arrow-left-circle me-2"></i>Back to Manage Exam
-    </a>
-  </div>
+  <a th:href="@{/admin/manage-exams}" class="btn-back"><i class="bi bi-arrow-left"></i> Back to Exams</a>
 </div>
-
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
