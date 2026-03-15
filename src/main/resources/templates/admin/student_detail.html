@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Student Detail — EduExam</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root{--primary:#6c63ff;--accent:#f59e0b;--success:#10b981;--danger:#ef4444;--dark:#0f0e17;--surface:#1a1829;--card:#221f35;--text:#fffffe;--muted:#a7a5be;--border:rgba(108,99,255,0.12);}
+        *{box-sizing:border-box;} body{font-family:'DM Sans',sans-serif;background:var(--dark);color:var(--text);min-height:100vh;} h1,h2,h3,h4,h5{font-family:'Syne',sans-serif;} .main{padding:2rem 0 4rem;}
+        .bc{display:flex;align-items:center;gap:0.5rem;margin-bottom:1.5rem;font-size:0.85rem;color:var(--muted);flex-wrap:wrap;}
+        .bc a{color:var(--muted);text-decoration:none;} .bc a:hover{color:var(--text);}
+        .ph{background:linear-gradient(135deg,rgba(108,99,255,0.14),rgba(108,99,255,0.04));border:1px solid var(--border);border-radius:20px;padding:2rem;margin-bottom:1.75rem;display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap;}
+        .pa{width:80px;height:80px;border-radius:50%;border:3px solid rgba(108,99,255,0.4);object-fit:cover;flex-shrink:0;}
+        .pp{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#6c63ff,#a78bfa);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;color:white;flex-shrink:0;}
+        .pn{font-size:1.7rem;font-weight:800;margin:0 0 0.4rem;letter-spacing:-0.5px;}
+        .pm{display:flex;gap:1rem;flex-wrap:wrap;}
+        .mc{display:flex;align-items:center;gap:0.4rem;color:var(--muted);font-size:0.85rem;}
+        .mc i{color:var(--primary);opacity:0.7;}
+        .bb{background:rgba(255,255,255,0.07);color:var(--muted);border:none;border-radius:50px;padding:0.55rem 1.3rem;font-size:0.88rem;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:0.4rem;transition:all 0.2s;margin-left:auto;}
+        .bb:hover{background:rgba(255,255,255,0.12);color:var(--text);}
+        .sr{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1rem;margin-bottom:1.75rem;}
+        .sb{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.1rem 1.25rem;text-align:center;}
+        .sv{font-family:'Syne',sans-serif;font-size:1.9rem;font-weight:800;line-height:1;margin-bottom:0.2rem;}
+        .sl{color:var(--muted);font-size:0.78rem;}
+        .sb1{border-top:3px solid var(--primary);} .sb2{border-top:3px solid var(--success);} .sb3{border-top:3px solid var(--accent);} .sb4{border-top:3px solid #a78bfa;}
+        .cc{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:1.5rem;margin-bottom:1.75rem;}
+        .cc h5{font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:1rem;}
+        .cw{height:180px;position:relative;}
+        .st{font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin:0 0 1rem;}
+        .ec{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:1rem;}
+        .ech{padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.75rem;cursor:pointer;transition:background 0.15s;}
+        .ech:hover{background:rgba(108,99,255,0.05);}
+        .el{display:flex;align-items:center;gap:0.85rem;}
+        .ei{width:40px;height:40px;border-radius:10px;background:rgba(108,99,255,0.12);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;}
+        .et{font-weight:700;font-size:0.95rem;margin-bottom:0.15rem;}
+        .ed{color:var(--muted);font-size:0.75rem;}
+        .er{display:flex;align-items:center;gap:0.85rem;}
+        .es{font-family:'Syne',sans-serif;font-size:1.25rem;font-weight:800;}
+        .bp{background:rgba(16,185,129,0.12);color:#6ee7b7;border-radius:50px;padding:0.25rem 0.85rem;font-size:0.8rem;font-weight:700;}
+        .bf{background:rgba(239,68,68,0.12);color:#fca5a5;border-radius:50px;padding:0.25rem 0.85rem;font-size:0.8rem;font-weight:700;}
+        .chv{color:var(--muted);transition:transform 0.25s;font-size:0.9rem;}
+        .chv.op{transform:rotate(180deg);}
+        .qb{display:none;border-top:1px solid var(--border);padding:1.25rem 1.5rem;}
+        .qb.op{display:block;}
+        .qi{display:flex;gap:0.85rem;padding:0.85rem;border-radius:10px;margin-bottom:0.5rem;border:1px solid rgba(255,255,255,0.04);}
+        .qi:last-child{margin-bottom:0;}
+        .qic{background:rgba(16,185,129,0.07);border-color:rgba(16,185,129,0.2);}
+        .qiw{background:rgba(239,68,68,0.06);border-color:rgba(239,68,68,0.15);}
+        .qis{background:rgba(245,158,11,0.05);border-color:rgba(245,158,11,0.15);}
+        .qd{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.78rem;flex-shrink:0;margin-top:2px;}
+        .qdc{background:rgba(16,185,129,0.2);color:#6ee7b7;} .qdw{background:rgba(239,68,68,0.15);color:#fca5a5;} .qds{background:rgba(245,158,11,0.15);color:#fcd34d;}
+        .qt{font-size:0.88rem;font-weight:500;line-height:1.5;margin-bottom:0.4rem;}
+        .qch{display:flex;gap:0.6rem;flex-wrap:wrap;font-size:0.76rem;}
+        .ch{border-radius:6px;padding:0.18rem 0.65rem;font-weight:600;}
+        .chc{background:rgba(16,185,129,0.12);color:#6ee7b7;} .chw{background:rgba(239,68,68,0.12);color:#fca5a5;} .chm{background:rgba(245,158,11,0.1);color:#fcd34d;} .chn{background:rgba(167,165,190,0.1);color:var(--muted);}
+        .ne{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:4rem 2rem;text-align:center;color:var(--muted);}
+        .ne i{font-size:2.5rem;display:block;margin-bottom:0.75rem;opacity:0.2;}
+    </style>
+</head>
+<body>
+<div th:replace="~{fragments :: navbar}"></div>
+<div class="container main">
+
+    <div class="bc">
+        <a th:href="@{/admin/dashboard}"><i class="bi bi-house-fill"></i> Dashboard</a>
+        <i class="bi bi-chevron-right" style="font-size:0.7rem;opacity:0.5;"></i>
+        <a th:href="@{/admin/students}">Students</a>
+        <i class="bi bi-chevron-right" style="font-size:0.7rem;opacity:0.5;"></i>
+        <span style="color:var(--text);" th:text="${student.fullName}">Student</span>
+    </div>
+
+    <div class="ph">
+        <img th:if="${student.profilePicUrl != null and !#strings.isEmpty(student.profilePicUrl)}"
+             th:src="${student.profilePicUrl}" class="pa" alt="pic">
+        <div th:unless="${student.profilePicUrl != null and !#strings.isEmpty(student.profilePicUrl)}"
+             class="pp"
+             th:text="${student.fullName != null and !#strings.isEmpty(student.fullName) ? #strings.toUpperCase(#strings.substring(student.fullName,0,1)) : 'S'}">S</div>
+        <div style="flex:1;min-width:0;">
+            <div class="pn" th:text="${student.fullName}">Name</div>
+            <div class="pm">
+                <div class="mc"><i class="bi bi-envelope-fill"></i> <span th:text="${student.username}">email</span></div>
+                <div class="mc" th:if="${student.mobileNumber != null}"><i class="bi bi-phone-fill"></i> <span th:text="${student.mobileNumber}">mobile</span></div>
+                <div class="mc"><i class="bi bi-hash"></i> ID: <span th:text="${student.id}">1</span></div>
+            </div>
+        </div>
+        <a th:href="@{/admin/students}" class="bb"><i class="bi bi-arrow-left"></i> Back</a>
+    </div>
+
+    <div class="sr">
+        <div class="sb sb1"><div class="sv" th:text="${totalExams}">0</div><div class="sl">Exams Diye</div></div>
+        <div class="sb sb2"><div class="sv" style="color:var(--success);" th:text="${passedCount}">0</div><div class="sl">Pass (≥50%)</div></div>
+        <div class="sb sb3"><div class="sv" style="color:var(--accent);" th:text="${avgScore} + '%'">0%</div><div class="sl">Avg Score</div></div>
+        <div class="sb sb4"><div class="sv" style="color:#a78bfa;" th:text="${highestScore} + '%'">0%</div><div class="sl">Best Score</div></div>
+    </div>
+
+    <div class="cc" th:if="${totalExams > 0}">
+        <h5><i class="bi bi-bar-chart-fill me-2" style="color:var(--primary)"></i>Score History</h5>
+        <div class="cw"><canvas id="scoreChart"></canvas></div>
+    </div>
+
+    <div class="st"><i class="bi bi-journal-text me-2" style="color:var(--primary)"></i>Exam History — Click karo questions dekhne ke liye</div>
+
+    <div th:if="${totalExams == 0}" class="ne">
+        <i class="bi bi-journal-x"></i>
+        <p style="margin:0;font-size:0.9rem;">Is student ne abhi koi exam nahi diya.</p>
+    </div>
+
+    <div th:each="result, i : ${results}" class="ec">
+        <div class="ech" th:onclick="|toggle('d'+${i.index},'c'+${i.index})|">
+            <div class="el">
+                <div class="ei">📋</div>
+                <div>
+                    <div class="et" th:text="${result.exam.title}">Exam</div>
+                    <div class="ed"><i class="bi bi-clock me-1"></i><span th:text="${#temporals.format(result.submissionTime,'dd MMM yyyy, HH:mm')}">date</span></div>
+                </div>
+            </div>
+            <div class="er">
+        <span class="es"
+              th:with="p=${result.totalMarks > 0 ? result.scoreAchieved * 100.0 / result.totalMarks : 0}"
+              th:style="${p >= 50 ? 'color:#10b981' : 'color:#ef4444'}"
+              th:text="${result.scoreAchieved} + ' / ' + ${result.totalMarks}">0/0</span>
+                <th:block th:if="${result.totalMarks > 0}" th:with="p=${result.scoreAchieved * 100.0 / result.totalMarks}">
+                    <span th:class="${p >= 50 ? 'bp' : 'bf'}" th:text="${#numbers.formatDecimal(p,1,1)} + '%'">0%</span>
+                </th:block>
+                <i class="bi bi-chevron-down chv" th:id="|c${i.index}|"></i>
+            </div>
+        </div>
+
+        <div class="qb" th:id="|d${i.index}|">
+            <div th:if="${#lists.isEmpty(result.answers)}" style="text-align:center;padding:1.5rem;color:var(--muted);font-size:0.88rem;">
+                <i class="bi bi-info-circle me-1"></i> Detailed answers available nahi hain.
+            </div>
+            <div th:each="ans : ${result.answers}"
+                 th:with="isCorrect=${ans.question.correctAnswer == ans.selectedOption},isSkip=${ans.selectedOption == 0}">
+                <div th:class="${isSkip ? 'qi qis' : (isCorrect ? 'qi qic' : 'qi qiw')}">
+                    <div th:class="${isSkip ? 'qd qds' : (isCorrect ? 'qd qdc' : 'qd qdw')}">
+                        <i th:class="${isSkip ? 'bi bi-dash' : (isCorrect ? 'bi bi-check-lg' : 'bi bi-x-lg')}"></i>
+                    </div>
+                    <div style="flex:1;min-width:0;">
+                        <div class="qt" th:text="${ans.question.text}">Question?</div>
+                        <div class="qch">
+              <span th:if="${!isSkip}" th:class="${isCorrect ? 'ch chc' : 'ch chw'}">
+                <span th:text="${isCorrect ? '✓' : '✗'}"></span> Tumhara:
+                <span th:text="${ans.selectedOption == 1 ? ans.question.option1 : (ans.selectedOption == 2 ? ans.question.option2 : (ans.selectedOption == 3 ? ans.question.option3 : ans.question.option4))}">ans</span>
+              </span>
+                            <span th:if="${isSkip}" class="ch chn">Nahi diya</span>
+                            <span th:if="${!isCorrect}" class="ch chc">
+                ✓ Sahi: <span th:text="${ans.question.correctAnswer == 1 ? ans.question.option1 : (ans.question.correctAnswer == 2 ? ans.question.option2 : (ans.question.correctAnswer == 3 ? ans.question.option3 : ans.question.option4))}">correct</span>
+              </span>
+                            <span class="ch chm"><i class="bi bi-star-fill me-1"></i><span th:text="${ans.question.marks}">1</span> marks</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    function toggle(bid, cid) {
+      const b = document.getElementById(bid), c = document.getElementById(cid);
+      const o = b.classList.contains('op');
+      b.classList.toggle('op', !o);
+      c.classList.toggle('op', !o);
+    }
+    const chartLabels = /*[[${chartLabels}]]*/ [];
+    const chartScores = /*[[${chartScores}]]*/ [];
+    if (chartLabels.length > 0) {
+      const ctx = document.getElementById('scoreChart').getContext('2d');
+      new Chart(ctx, {
+        type: 'bar',
+        data: { labels: chartLabels, datasets: [{ label: 'Score %', data: chartScores,
+          backgroundColor: chartScores.map(s => s >= 50 ? 'rgba(16,185,129,0.35)' : 'rgba(239,68,68,0.3)'),
+          borderColor: chartScores.map(s => s >= 50 ? '#10b981' : '#ef4444'),
+          borderRadius: 8, borderWidth: 1.5 }] },
+        options: { responsive: true, maintainAspectRatio: false,
+          plugins: { legend:{display:false}, tooltip:{ backgroundColor:'#1a1829', titleColor:'#fffffe', bodyColor:'#a7a5be', borderColor:'rgba(108,99,255,0.3)', borderWidth:1, displayColors:false, callbacks:{ label: c => 'Score: '+c.parsed.y+'%' } } },
+          scales: { y:{ beginAtZero:true, max:100, ticks:{color:'#a7a5be',callback:v=>v+'%'}, grid:{color:'rgba(255,255,255,0.05)'} }, x:{ticks:{color:'#a7a5be'},grid:{display:false}} }
+        }
+      });
+    }
+    /*]]>*/
+</script>
+</body>
+</html>

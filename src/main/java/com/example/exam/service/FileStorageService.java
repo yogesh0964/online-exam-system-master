@@ -1,73 +1,44 @@
 package com.example.exam.service;
 
-import org.springframework.beans.factory.annotation.Value;
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
-import java.util.UUID;
+import java.util.Map;
 
 @Service
 public class FileStorageService {
 
-    private final Path fileStorageLocation;
-
-    // Get the upload directory path from application.properties
-    public FileStorageService(@Value("${file.upload-dir}") String uploadDir) {
-        this.fileStorageLocation = Paths.get(uploadDir).toAbsolutePath().normalize();
-
-        // Create the directory if it doesn't exist
-        try {
-            Files.createDirectories(this.fileStorageLocation);
-        } catch (Exception ex) {
-            throw new RuntimeException("Could not create the directory where the uploaded files will be stored.", ex);
-        }
-    }
+    @Autowired
+    private Cloudinary cloudinary;
 
     /**
-     * Saves a file to the storage directory
-     *
-     * @param file The file to save
-     * @return The relative path to the saved file (e.g., "/uploads/filename.jpg")
+     * Image Cloudinary pe upload karo
+     * @return Cloudinary ka permanent URL (https://res.cloudinary.com/...)
      */
     public String saveFile(MultipartFile file) {
-        if (file.isEmpty()) {
+        if (file == null || file.isEmpty()) {
             return null;
         }
-
-        // Generate a unique filename to prevent conflicts
-        String originalFileName = StringUtils.cleanPath(file.getOriginalFilename());
-        String fileExtension = "";
         try {
-            fileExtension = originalFileName.substring(originalFileName.lastIndexOf("."));
-        } catch (Exception e) {
-            // No file extension
-        }
-        String uniqueFileName = UUID.randomUUID().toString() + fileExtension;
+            // Cloudinary pe upload karo
+            Map<?, ?> result = cloudinary.uploader().upload(
+                    file.getBytes(),
+                    ObjectUtils.asMap(
+                            "folder",          "exam-profiles",   // Cloudinary mein folder
+                            "resource_type",   "image",
+                            "transformation",  "c_fill,w_300,h_300,g_face"  // Auto crop face
+                    )
+            );
 
-        try {
-            // Check for invalid characters
-            if (uniqueFileName.contains("..")) {
-                throw new RuntimeException("Sorry! Filename contains invalid path sequence " + uniqueFileName);
-            }
+            // Permanent HTTPS URL return karo
+            return (String) result.get("secure_url");
 
-            // Copy file to the target location
-            Path targetLocation = this.fileStorageLocation.resolve(uniqueFileName);
-            try (InputStream inputStream = file.getInputStream()) {
-                Files.copy(inputStream, targetLocation, StandardCopyOption.REPLACE_EXISTING);
-            }
-
-            // Return the *web-accessible* path
-            return "/uploads/" + uniqueFileName;
-
-        } catch (IOException ex) {
-            throw new RuntimeException("Could not store file " + uniqueFileName + ". Please try again!", ex);
+        } catch (IOException e) {
+            throw new RuntimeException("Cloudinary upload failed: " + e.getMessage(), e);
         }
     }
 }

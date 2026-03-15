@@ -283,5 +283,49 @@ public class AdminController {
         }
         return "redirect:/admin/students";
     }
-}
 
+    @GetMapping("/student/detail/{id}")
+    public String viewStudentDetail(@PathVariable Long id, Model model) {
+        User student = userRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Student not found: " + id));
+
+        List<ExamResult> results = examResultRepository.findByStudentOrderBySubmissionTimeDesc(student);
+
+        // Stats calculate karo Java mein — Thymeleaf stream() reliable nahi
+        int totalExams = results.size();
+        long passedCount = 0;
+        double totalPct = 0;
+        double highestScore = 0;
+
+        for (ExamResult r : results) {
+            if (r.getTotalMarks() > 0) {
+                double pct = (r.getScoreAchieved() * 100.0) / r.getTotalMarks();
+                totalPct += pct;
+                if (pct >= 50) passedCount++;
+                if (pct > highestScore) highestScore = pct;
+            }
+        }
+        double avgScore = totalExams > 0 ? totalPct / totalExams : 0;
+
+        // Chart ke liye data
+        List<String> chartLabels = results.stream()
+                .map(r -> r.getExam().getTitle())
+                .collect(java.util.stream.Collectors.toList());
+        List<Double> chartScores = results.stream()
+                .map(r -> r.getTotalMarks() > 0
+                        ? Math.round((r.getScoreAchieved() * 100.0) / r.getTotalMarks() * 10.0) / 10.0
+                        : 0.0)
+                .collect(java.util.stream.Collectors.toList());
+
+        model.addAttribute("student", student);
+        model.addAttribute("results", results);
+        model.addAttribute("totalExams", totalExams);
+        model.addAttribute("passedCount", passedCount);
+        model.addAttribute("avgScore", Math.round(avgScore * 10.0) / 10.0);
+        model.addAttribute("highestScore", Math.round(highestScore * 10.0) / 10.0);
+        model.addAttribute("chartLabels", chartLabels);
+        model.addAttribute("chartScores", chartScores);
+
+        return "admin/student_detail";
+    }
+}
