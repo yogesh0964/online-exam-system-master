@@ -1,44 +1,51 @@
 package com.example.exam.service;
 
-import com.cloudinary.Cloudinary;
-import com.cloudinary.utils.ObjectUtils;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.Map;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.UUID;
 
 @Service
 public class FileStorageService {
 
-    @Autowired
-    private Cloudinary cloudinary;
+    private final Path fileStorageLocation;
 
-    /**
-     * Image Cloudinary pe upload karo
-     * @return Cloudinary ka permanent URL (https://res.cloudinary.com/...)
-     */
-    public String saveFile(MultipartFile file) {
-        if (file == null || file.isEmpty()) {
-            return null;
-        }
+    public FileStorageService(@Value("${file.upload-dir}") String uploadDir) {
+        this.fileStorageLocation = Paths.get(uploadDir).toAbsolutePath().normalize();
         try {
-            // Cloudinary pe upload karo
-            Map<?, ?> result = cloudinary.uploader().upload(
-                    file.getBytes(),
-                    ObjectUtils.asMap(
-                            "folder",          "exam-profiles",   // Cloudinary mein folder
-                            "resource_type",   "image",
-                            "transformation",  "c_fill,w_300,h_300,g_face"  // Auto crop face
-                    )
-            );
+            Files.createDirectories(this.fileStorageLocation);
+        } catch (Exception ex) {
+            throw new RuntimeException("Could not create upload directory.", ex);
+        }
+    }
 
-            // Permanent HTTPS URL return karo
-            return (String) result.get("secure_url");
+    public String saveFile(MultipartFile file) {
+        if (file == null || file.isEmpty()) return null;
 
-        } catch (IOException e) {
-            throw new RuntimeException("Cloudinary upload failed: " + e.getMessage(), e);
+        String originalFileName = StringUtils.cleanPath(file.getOriginalFilename());
+        String fileExtension = "";
+        try {
+            fileExtension = originalFileName.substring(originalFileName.lastIndexOf("."));
+        } catch (Exception e) { }
+
+        String uniqueFileName = UUID.randomUUID().toString() + fileExtension;
+
+        try {
+            Path targetLocation = this.fileStorageLocation.resolve(uniqueFileName);
+            try (InputStream inputStream = file.getInputStream()) {
+                Files.copy(inputStream, targetLocation, StandardCopyOption.REPLACE_EXISTING);
+            }
+            return "/uploads/" + uniqueFileName;
+        } catch (IOException ex) {
+            throw new RuntimeException("Could not store file. Please try again!", ex);
         }
     }
 }
