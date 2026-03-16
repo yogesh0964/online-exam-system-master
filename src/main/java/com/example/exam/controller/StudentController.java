@@ -6,7 +6,6 @@ import com.example.exam.model.User;
 import com.example.exam.repository.ExamRepository;
 import com.example.exam.repository.ExamResultRepository;
 import com.example.exam.repository.UserRepository;
-import com.example.exam.service.FileStorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -36,8 +35,6 @@ public class StudentController {
     @Autowired
     private ExamResultRepository examResultRepository;
 
-    @Autowired
-    private FileStorageService fileStorageService;
     @Autowired
     private PasswordEncoder passwordEncoder;
 
@@ -158,9 +155,20 @@ public class StudentController {
         }
 
         try {
+            // File size check — 2MB max
+            if (profilePicFile.getSize() > 2 * 1024 * 1024) {
+                redirectAttributes.addFlashAttribute("errorMessage", "File size 2MB se zyada nahi honi chahiye.");
+                return "redirect:/student/profile";
+            }
+
+            // Base64 mein convert karo — DB mein save hoga, koi folder nahi chahiye
+            String contentType = profilePicFile.getContentType();
+            byte[] bytes = profilePicFile.getBytes();
+            String base64 = java.util.Base64.getEncoder().encodeToString(bytes);
+            String dataUrl = "data:" + contentType + ";base64," + base64;
+
             User student = getAuthenticatedUser();
-            String filePath = fileStorageService.saveFile(profilePicFile);
-            student.setProfilePicUrl(filePath);
+            student.setProfilePicUrl(dataUrl);
             userRepository.save(student);
             redirectAttributes.addFlashAttribute("successMessage", "Profile picture updated successfully!");
         } catch (Exception e) {

@@ -29,7 +29,7 @@ public class User {
     @Column(nullable = true)
     private String fullName;
 
-    @Column(nullable = true) // Profile pic URL is optional
+    @Column(nullable = true, columnDefinition = "TEXT") // Base64 image ya URL
     private String profilePicUrl;
 
 
@@ -122,4 +122,3 @@ public class User {
         return Objects.hash(id);
     }
 }
-
