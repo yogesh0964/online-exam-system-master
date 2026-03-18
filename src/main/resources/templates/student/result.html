@@ -42,7 +42,8 @@
       <div class="result-card-top">
         <span class="result-emoji" th:text="${isPass ? '🏆' : '😔'}">🏆</span>
         <h1 class="result-title" th:text="${isPass ? 'Congratulations!' : 'Keep Practicing!'}">Result</h1>
-        <p class="result-sub" th:text="${isPass ? 'You passed the exam! Great work.' : 'Better luck next time. Don\'t give up!'}">subtitle</p>
+        <!-- Line 45 ko yeh kar do -->
+        <p th:text="${isPass} ? 'You passed the exam! Great work.' : |Better luck next time. Don't give up!|"></p>
       </div>
 
       <!-- SCORE SECTION -->
