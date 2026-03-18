@@ -1,111 +1,360 @@
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-  <title>Exam Result — EduExam</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
-  <style>
-    :root{--primary:#6c63ff;--success:#10b981;--danger:#ef4444;--dark:#0f0e17;--surface:#1a1829;--card:#221f35;--text:#fffffe;--muted:#a7a5be;--border:rgba(108,99,255,0.12);}
-    *{box-sizing:border-box;} body{font-family:'DM Sans',sans-serif;background:var(--dark);color:var(--text);min-height:100vh;display:flex;flex-direction:column;} h1,h2,h3,h4{font-family:'Syne',sans-serif;}
-    .result-wrap{flex:1;display:flex;align-items:center;justify-content:center;padding:2rem 1rem;}
-    .result-card{background:var(--card);border:1px solid var(--border);border-radius:24px;max-width:520px;width:100%;overflow:hidden;}
-    .result-card-top{padding:3rem 2.5rem 2rem;text-align:center;position:relative;}
-    .result-emoji{font-size:5rem;line-height:1;display:block;margin-bottom:1rem;animation:pop 0.5s ease;}
-    @keyframes pop{0%{transform:scale(0.5);opacity:0;}80%{transform:scale(1.1);}100%{transform:scale(1);opacity:1;}}
-    .result-title{font-size:1.8rem;font-weight:800;letter-spacing:-0.5px;margin-bottom:0.3rem;}
-    .result-sub{color:var(--muted);font-size:0.9rem;}
-    .score-section{padding:1.75rem 2.5rem;border-top:1px solid var(--border);border-bottom:1px solid var(--border);}
-    .score-label{font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);text-align:center;margin-bottom:1rem;}
-    .score-big{font-family:'Syne',sans-serif;font-size:4.5rem;font-weight:800;letter-spacing:-2px;text-align:center;line-height:1;margin-bottom:0.25rem;}
-    .score-raw{color:var(--muted);font-size:0.9rem;text-align:center;margin-bottom:1.25rem;}
-    .progress-track{height:10px;background:rgba(255,255,255,0.07);border-radius:50px;overflow:hidden;}
-    .progress-fill{height:100%;border-radius:50px;transition:width 1s ease;}
-    .rank-section{padding:1.25rem 2.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:center;gap:1.5rem;}
-    .rank-badge{text-align:center;}
-    .rank-badge .rank-num{font-family:'Syne',sans-serif;font-size:2.2rem;font-weight:800;color:#f59e0b;line-height:1;}
-    .rank-badge .rank-label{font-size:0.72rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-top:0.2rem;}
-    .rank-divider{width:1px;height:40px;background:var(--border);}
-    .rank-trophy{font-size:2.5rem;}
-    .btn-dashboard{display:flex;align-items:center;justify-content:center;gap:0.5rem;background:rgba(255,255,255,0.07);color:var(--text);border-radius:12px;padding:0.85rem;font-size:0.95rem;font-weight:700;font-family:'Syne',sans-serif;text-decoration:none;transition:all 0.2s;border:none;cursor:pointer;}
-    .btn-dashboard:hover{background:rgba(255,255,255,0.12);color:var(--text);}
-    .btn-review{display:flex;align-items:center;justify-content:center;gap:0.5rem;background:var(--primary);color:white;border-radius:12px;padding:0.85rem;font-size:0.95rem;font-weight:700;font-family:'Syne',sans-serif;text-decoration:none;transition:all 0.2s;border:none;cursor:pointer;box-shadow:0 4px 20px rgba(108,99,255,0.3);}
-    .btn-review:hover{background:#4f46e5;color:white;transform:translateY(-2px);}
-    .confetti{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;overflow:hidden;z-index:0;}
-    .confetti-piece{position:absolute;top:-10px;width:10px;height:14px;opacity:0;animation:confetti-fall linear infinite;}
-    @keyframes confetti-fall{0%{transform:translateY(-10px) rotate(0deg);opacity:1;}100%{transform:translateY(100vh) rotate(720deg);opacity:0;}}
-  </style>
-</head>
-<body>
-<div th:replace="~{fragments :: navbar}"></div>
+package com.example.exam.controller;
 
-<div class="result-wrap">
-  <div class="result-card">
-    <th:block th:with="percentage=${(total > 0) ? (score * 100.0) / total : 0}, isPass=${percentage >= 50}">
+import com.example.exam.model.Exam;
+import com.example.exam.model.ExamResult;
+import com.example.exam.model.Question;
+import com.example.exam.model.User;
+import com.example.exam.repository.ExamRepository;
+import com.example.exam.repository.ExamResultRepository;
+import com.example.exam.repository.QuestionRepository;
+import com.example.exam.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-      <!-- TOP -->
-      <div class="result-card-top">
-        <span class="result-emoji" th:text="${isPass ? '🏆' : '😔'}">🏆</span>
-        <h1 class="result-title" th:text="${isPass ? 'Congratulations!' : 'Keep Practicing!'}">Result</h1>
-        <!-- Line 45 ko yeh kar do -->
-        <p th:text="${isPass} ? 'You passed the exam! Great work.' : |Better luck next time. Don't give up!|"></p>
-      </div>
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
-      <!-- SCORE SECTION -->
-      <div class="score-section">
-        <div class="score-label">Your Score</div>
-        <div class="score-big" th:style="${isPass ? 'color:#10b981' : 'color:#ef4444'}"
-             th:text="${#numbers.formatDecimal(percentage,1,1) + '%'}">0%</div>
-        <div class="score-raw" th:text="${score} + ' out of ' + ${total} + ' points'">0/0</div>
-        <div class="progress-track">
-          <div class="progress-fill"
-               th:style="${'width:' + #numbers.formatDecimal(percentage,1,1) + '%;background:' + (isPass ? '#10b981' : '#ef4444')}"></div>
-        </div>
-      </div>
+@Controller
+@RequestMapping("/admin")
+public class AdminController {
 
-      <!-- RANK SECTION -->
-      <div class="rank-section" th:if="${rank != null}">
-        <span class="rank-trophy">🏅</span>
-        <div class="rank-divider"></div>
-        <div class="rank-badge">
-          <div class="rank-num" th:text="'#' + ${rank}">—</div>
-          <div class="rank-label">Your Rank</div>
-        </div>
-        <div class="rank-divider"></div>
-        <div class="rank-badge">
-          <div class="rank-num" th:text="${totalStudents}">—</div>
-          <div class="rank-label">Total Students</div>
-        </div>
-      </div>
+@Autowired
+private ExamRepository examRepository;
 
-      <!-- ACTIONS -->
-      <div class="result-actions">
-        <a th:if="${resultId != null}" th:href="@{/student/review/{id}(id=${resultId})}" class="btn-review">
-          <i class="bi bi-search"></i> Review My Answers
-        </a>
-        <a th:href="@{/student/dashboard}" class="btn-dashboard">
-          <i class="bi bi-house-door-fill"></i> Back to Dashboard
-        </a>
-      </div>
+@Autowired
+private QuestionRepository questionRepository;
 
-    </th:block>
-  </div>
-</div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<script th:inline="javascript">
-  const isPass = /*[[${(total > 0) ? (score * 100.0 / total) >= 50 : false}]]*/ false;
-  if (isPass) {
-    // Launch confetti
-    const container = document.createElement('div'); container.className = 'confetti'; document.body.appendChild(container);
-    const colors = ['#6c63ff','#10b981','#f59e0b','#a78bfa','#34d399','#fcd34d'];
-    for (let i = 0; i < 60; i++) {
-      const p = document.createElement('div'); p.className = 'confetti-piece';
-      p.style.cssText = `left:${Math.random()*100}%;animation-duration:${2+Math.random()*3}s;animation-delay:${Math.random()*2}s;background:${colors[Math.floor(Math.random()*colors.length)]};border-radius:${Math.random()>0.5?'50%':'2px'};width:${6+Math.random()*8}px;height:${8+Math.random()*10}px;`;
-      container.appendChild(p);
-    }
-    setTimeout(() => container.remove(), 5000);
-  }
-</script>
-</body>
-</html>
+@Autowired
+private ExamResultRepository examResultRepository;
+@Autowired
+private UserRepository userRepository;
+
+@Autowired
+private PasswordEncoder passwordEncoder;
+
+@GetMapping("/dashboard")
+public String adminDashboard(Model model) {
+
+// 1. Get KPI Card Stats
+long totalStudents = userRepository.countByRole("ROLE_STUDENT");
+long totalExams = examRepository.count();
+long totalQuestions = questionRepository.count();
+long totalSubmissions = examResultRepository.count();
+
+model.addAttribute("totalStudents", totalStudents);
+model.addAttribute("totalExams", totalExams);
+model.addAttribute("totalQuestions", totalQuestions);
+model.addAttribute("totalSubmissions", totalSubmissions);
+
+// 2. Get Data for Submissions Chart
+List<Exam> allExams = examRepository.findAll();
+  List<String> chartLabels = allExams.stream()
+    .map(Exam::getTitle)
+    .collect(Collectors.toList());
+    List<Integer> chartData = allExams.stream()
+      .map(exam -> exam.getResults().size())
+      .collect(Collectors.toList());
+
+      model.addAttribute("chartLabels", chartLabels);
+      model.addAttribute("chartData", chartData);
+
+
+      List<ExamResult> recentResults = examResultRepository.findTop5ByOrderBySubmissionTimeDesc();
+        model.addAttribute("recentResults", recentResults);
+
+        return "admin/dashboard";
+        }
+
+
+        @GetMapping("/manage-exams")
+        public String getManageExamsPage(Model model) {
+        model.addAttribute("exams", examRepository.findAll());
+        return "admin/manage_exams";
+        }
+
+        @GetMapping("/exam/add")
+        public String showAddExamForm(Model model) {
+        model.addAttribute("exam", new Exam());
+        return "admin/add_exam";
+        }
+
+        @PostMapping("/exam/add")
+        public String addExam(@ModelAttribute Exam exam) {
+        examRepository.save(exam);
+        return "redirect:/admin/manage-exams";
+        }
+
+        @GetMapping("/exam/{examId}/question/add")
+        public String showAddQuestionForm(@PathVariable Long examId, Model model) {
+        Exam exam = examRepository.findById(examId)
+        .orElseThrow(() -> new IllegalArgumentException("Invalid exam Id:" + examId));
+        Question question = new Question();
+        question.setExam(exam);
+        model.addAttribute("question", question);
+        model.addAttribute("examId", examId);
+        return "admin/add_question";
+        }
+
+
+        @PostMapping("/exam/question/add")
+        public String addQuestion(@ModelAttribute Question question,
+        @RequestParam Long examId,
+        RedirectAttributes redirectAttributes) {
+
+        Exam exam = examRepository.findById(examId)
+        .orElseThrow(() -> new IllegalArgumentException("Invalid exam Id:" + examId));
+
+        question.setExam(exam);
+        questionRepository.save(question);
+
+        redirectAttributes.addFlashAttribute("successMessage", "Question added successfully!");
+
+        return "redirect:/admin/exam/" + examId + "/question/add";
+        }
+
+        @GetMapping("/results/{examId}")
+        public String viewResults(@PathVariable Long examId, Model model) {
+        Exam exam = examRepository.findById(examId)
+        .orElseThrow(() -> new IllegalArgumentException("Invalid exam Id:" + examId));
+
+        // Score ke hisab se descending order mein results (highest first = rank 1)
+        List<ExamResult> results = examResultRepository.findByExamOrderByScoreAchievedDesc(exam);
+
+          // Har result ka real rank calculate karo
+          java.util.Map<Long, Long> rankMap = new java.util.LinkedHashMap<>();
+          java.util.Map<Long, Long> totalStudentsMap = new java.util.LinkedHashMap<>();
+          long totalStudents = examResultRepository.countByExam(exam);
+
+          for (ExamResult result : results) {
+          long rank = examResultRepository.countStudentsWithHigherScore(exam, result.getScoreAchieved()) + 1;
+          rankMap.put(result.getId(), rank);
+          totalStudentsMap.put(result.getId(), totalStudents);
+          }
+
+          model.addAttribute("exam", exam);
+          model.addAttribute("results", results);
+          model.addAttribute("rankMap", rankMap);
+          model.addAttribute("totalStudentsMap", totalStudentsMap);
+
+          return "admin/view_results";
+          }
+
+          @GetMapping("/exam/delete/{examId}")
+          public String deleteExam(@PathVariable Long examId) {
+          // CascadeType.ALL, deleting the exam will also delete
+          // all associated questions and results.
+          examRepository.deleteById(examId);
+          return "redirect:/admin/manage-exams";
+          }
+
+          @GetMapping("/exam/edit/{examId}")
+          public String showEditExamForm(@PathVariable Long examId, Model model) {
+          Exam exam = examRepository.findById(examId)
+          .orElseThrow(() -> new IllegalArgumentException("Invalid exam Id:" + examId));
+          model.addAttribute("exam", exam);
+          return "admin/edit_exam";
+          }
+          /***
+          Subscribe Lazycoder - https://www.youtube.com/c/LazyCoderOnline?sub_confirmation=1
+          whatsapp - https://wa.me/919572181024
+          email - wapka1503@gmail.com
+          ***/
+          @PostMapping("/exam/update/{examId}")
+          public String updateExam(@PathVariable Long examId, @ModelAttribute Exam updatedExam) {
+          Exam existingExam = examRepository.findById(examId)
+          .orElseThrow(() -> new IllegalArgumentException("Invalid exam Id:" + examId));
+
+          existingExam.setTitle(updatedExam.getTitle());
+          existingExam.setDurationInMinutes(updatedExam.getDurationInMinutes());
+
+          examRepository.save(existingExam);
+          return "redirect:/admin/manage-exams";
+          }
+
+          @GetMapping("/exam/manage-questions/{examId}")
+          public String showManageQuestionsPage(@PathVariable Long examId, Model model) {
+          Exam exam = examRepository.findById(examId)
+          .orElseThrow(() -> new IllegalArgumentException("Invalid exam Id:" + examId));
+          model.addAttribute("exam", exam);
+          model.addAttribute("questions", exam.getQuestions());
+          return "admin/manage_questions";
+          }
+
+          @GetMapping("/question/edit/{questionId}")
+          public String showEditQuestionForm(@PathVariable Long questionId, Model model) {
+          Question question = questionRepository.findById(questionId)
+          .orElseThrow(() -> new IllegalArgumentException("Invalid question Id:" + questionId));
+          model.addAttribute("question", question);
+          return "admin/edit_question.html";
+          }
+
+          @PostMapping("/question/update/{questionId}")
+          public String updateQuestion(@PathVariable Long questionId, @ModelAttribute Question updatedQuestion) {
+          Question existingQuestion = questionRepository.findById(questionId)
+          .orElseThrow(() -> new IllegalArgumentException("Invalid question Id:" + questionId));
+
+          existingQuestion.setText(updatedQuestion.getText());
+          existingQuestion.setOption1(updatedQuestion.getOption1());
+          existingQuestion.setOption2(updatedQuestion.getOption2());
+          existingQuestion.setOption3(updatedQuestion.getOption3());
+          existingQuestion.setOption4(updatedQuestion.getOption4());
+          existingQuestion.setCorrectAnswer(updatedQuestion.getCorrectAnswer());
+          existingQuestion.setMarks(updatedQuestion.getMarks());
+
+          questionRepository.save(existingQuestion);
+
+          return "redirect:/admin/exam/manage-questions/" + existingQuestion.getExam().getId();
+          }
+
+          @GetMapping("/exam/{examId}/question/delete/{questionId}")
+          public String deleteQuestion(@PathVariable Long examId,
+          @PathVariable Long questionId,
+          RedirectAttributes redirectAttributes) { // <-- Added RedirectAttributes
+          try {
+          questionRepository.deleteById(questionId);
+          redirectAttributes.addFlashAttribute("successMessage", "Question deleted successfully.");
+
+          } catch (DataIntegrityViolationException e) {
+          redirectAttributes.addFlashAttribute("errorMessage", "Cannot delete this question. It has already been answered by one or more students and is part of their exam results.");
+
+          } catch (Exception e) {
+          redirectAttributes.addFlashAttribute("errorMessage", "An unexpected error occurred while trying to delete the question.");
+          }
+
+          return "redirect:/admin/exam/manage-questions/" + examId;
+          }
+
+
+          @GetMapping("/students")
+          public String getManageStudentsPage(Model model) {
+          // Find all users who have the "STUDENT" role
+          List<User> students = userRepository.findByRole("ROLE_STUDENT");
+            model.addAttribute("students", students);
+            return "admin/manage_students";
+            }
+
+            @GetMapping("/student/delete/{id}")
+            @Transactional
+            public String deleteStudent(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+            try {
+            // 1. Find the student
+            Optional<User> studentOpt = userRepository.findById(id);
+              if (studentOpt.isEmpty()) {
+              throw new IllegalArgumentException("Invalid student Id:" + id);
+              }
+              User student = studentOpt.get();
+
+              // 2. MANUALLY delete the "children" (ExamResults)
+              examResultRepository.deleteByStudent(student);
+
+              // 3. Force Hibernate to execute the pending DELETE statements NOW.
+              examResultRepository.flush();
+
+              // 4. NOW it is safe to delete the "parent" (User)
+              userRepository.delete(student);
+
+              redirectAttributes.addFlashAttribute("successMessage", "Student account and all associated results have been deleted.");
+
+              } catch (DataIntegrityViolationException e) {
+              redirectAttributes.addFlashAttribute("errorMessage", "Could not delete student. A database integrity error occurred.");
+
+              } catch (Exception e) {
+              redirectAttributes.addFlashAttribute("errorMessage", "An error occurred while trying to delete the student account: " + e.getMessage());
+              }
+              return "redirect:/admin/students";
+              }
+
+
+              @PostMapping("/student/reset-password")
+              public String resetStudentPassword(@RequestParam("userId") Long userId,
+              @RequestParam("newPassword") String newPassword,
+              RedirectAttributes redirectAttributes) {
+
+              if (newPassword.isEmpty()) {
+              redirectAttributes.addFlashAttribute("errorMessage", "Password cannot be empty.");
+              return "redirect:/admin/students";
+              }
+
+              try {
+              User student = userRepository.findById(userId)
+              .orElseThrow(() -> new IllegalArgumentException("Invalid student Id:" + userId));
+
+              // Encode the new password before saving
+              student.setPassword(passwordEncoder.encode(newPassword));
+              userRepository.save(student);
+
+              redirectAttributes.addFlashAttribute("successMessage", "Password for " + student.getUsername() + " has been reset.");
+              } catch (Exception e) {
+              redirectAttributes.addFlashAttribute("errorMessage", "An error occurred while trying to reset the password.");
+              }
+              return "redirect:/admin/students";
+              }
+
+              @GetMapping("/student/detail/{id}")
+              public String viewStudentDetail(@PathVariable Long id, Model model) {
+              User student = userRepository.findById(id)
+              .orElseThrow(() -> new IllegalArgumentException("Student not found: " + id));
+
+              List<ExamResult> results = examResultRepository.findByStudentOrderBySubmissionTimeDesc(student);
+
+                // Stats calculate karo Java mein — Thymeleaf stream() reliable nahi
+                int totalExams = results.size();
+                long passedCount = 0;
+                double totalPct = 0;
+                double highestScore = 0;
+
+                for (ExamResult r : results) {
+                if (r.getTotalMarks() > 0) {
+                double pct = (r.getScoreAchieved() * 100.0) / r.getTotalMarks();
+                totalPct += pct;
+                if (pct >= 50) passedCount++;
+                if (pct > highestScore) highestScore = pct;
+                }
+                }
+                double avgScore = totalExams > 0 ? totalPct / totalExams : 0;
+
+                // Chart ke liye data
+                List<String> chartLabels = results.stream()
+                  .map(r -> r.getExam().getTitle())
+                  .collect(java.util.stream.Collectors.toList());
+                  List<Double> chartScores = results.stream()
+                    .map(r -> r.getTotalMarks() > 0
+                    ? Math.round((r.getScoreAchieved() * 100.0) / r.getTotalMarks() * 10.0) / 10.0
+                    : 0.0)
+                    .collect(java.util.stream.Collectors.toList());
+
+                    model.addAttribute("student", student);
+                    model.addAttribute("results", results);
+                    model.addAttribute("totalExams", totalExams);
+                    model.addAttribute("passedCount", passedCount);
+                    model.addAttribute("avgScore", Math.round(avgScore * 10.0) / 10.0);
+                    model.addAttribute("highestScore", Math.round(highestScore * 10.0) / 10.0);
+                    model.addAttribute("chartLabels", chartLabels);
+                    model.addAttribute("chartScores", chartScores);
+
+                    // Har exam ka rank calculate karo
+                    java.util.Map<Long, Long> rankMap = new java.util.LinkedHashMap<>();
+                    java.util.Map<Long, Long> totalStudentsMap = new java.util.LinkedHashMap<>();
+                    long bestRank = Long.MAX_VALUE;
+                    for (ExamResult r : results) {
+                    long rank = examResultRepository.countStudentsWithHigherScore(r.getExam(), r.getScoreAchieved()) + 1;
+                    long total = examResultRepository.countByExam(r.getExam());
+                    rankMap.put(r.getId(), rank);
+                    totalStudentsMap.put(r.getId(), total);
+                    if (rank < bestRank) bestRank = rank;
+                    }
+                    model.addAttribute("rankMap", rankMap);
+                    model.addAttribute("totalStudentsMap", totalStudentsMap);
+                    model.addAttribute("bestRank", results.isEmpty() ? null : bestRank);
+
+                    return "admin/student_detail";
+                    }
+                    }
