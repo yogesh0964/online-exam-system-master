@@ -8,6 +8,8 @@
     body {
         background-color: #f8f9fa; /* Light gray background */
     }
+          .btn-back-float{position:fixed;bottom:2rem;left:2rem;z-index:999;display:inline-flex;align-items:center;gap:0.5rem;background:linear-gradient(135deg,#6c63ff,#4f46e5);color:white !important;border:none;border-radius:50px;padding:0.7rem 1.4rem;font-size:0.88rem;font-weight:700;font-family:'Syne',sans-serif;text-decoration:none;box-shadow:0 8px 25px rgba(108,99,255,0.4);transition:all 0.25s;}
+        .btn-back-float:hover{transform:translateY(-3px);box-shadow:0 14px 35px rgba(108,99,255,0.55);background:linear-gradient(135deg,#4f46e5,#3730a3);}
   </style>
 </head>
 <body>
@@ -154,5 +156,6 @@
       modalStudentNameLabel.textContent = studentName;
   });
 </script>
+<a onclick="history.back()" class="btn-back-float"><i class="bi bi-arrow-left-circle-fill"></i> Back</a>
 </body>
 </html>
