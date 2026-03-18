@@ -82,25 +82,33 @@
 
   <!-- --- 2. NEW: KPI Stat Cards --- -->
   <div class="row mb-4 g-4">
-    <div class="col-md-4">
+    <div class="col-md-3">
       <div class="kpi-card">
         <div class="kpi-icon text-primary"><i class="bi bi-journal-check"></i></div>
         <div class="kpi-value" th:text="${totalTaken}">0</div>
         <div class="kpi-label">Exams Taken</div>
       </div>
     </div>
-    <div class="col-md-4">
+    <div class="col-md-3">
       <div class="kpi-card">
         <div class="kpi-icon text-success"><i class="bi bi-bar-chart-line-fill"></i></div>
         <div class="kpi-value" th:text="${#numbers.formatDecimal(averageScore, 1, 1) + '%'}">0.0%</div>
         <div class="kpi-label">Average Score</div>
       </div>
     </div>
-    <div class="col-md-4">
+    <div class="col-md-3">
       <div class="kpi-card">
         <div class="kpi-icon text-warning"><i class="bi bi-trophy-fill"></i></div>
         <div class="kpi-value" th:text="${highestScore} + '%'">0%</div>
         <div class="kpi-label">Highest Score</div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="kpi-card">
+        <div class="kpi-icon" style="color:#f59e0b;"><i class="bi bi-award-fill"></i></div>
+        <div class="kpi-value" th:if="${bestRank != null}" th:text="'#' + ${bestRank}" style="color:#f59e0b;">—</div>
+        <div class="kpi-value" th:if="${bestRank == null}" style="color:#aaa;">—</div>
+        <div class="kpi-label">Best Rank</div>
       </div>
     </div>
   </div>

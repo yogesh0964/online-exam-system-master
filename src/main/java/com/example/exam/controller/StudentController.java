@@ -18,7 +18,10 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -81,6 +84,15 @@ public class StudentController {
         model.addAttribute("averageScore", averageScore);
         model.addAttribute("highestScore", highestScorePercent);
 
+        // Best rank across all exams
+        long bestRank = Long.MAX_VALUE;
+        for (ExamResult result : pastResults) {
+            long rank = examResultRepository.countStudentsWithHigherScore(
+                    result.getExam(), result.getScoreAchieved()) + 1;
+            if (rank < bestRank) bestRank = rank;
+        }
+        model.addAttribute("bestRank", pastResults.isEmpty() ? null : bestRank);
+
         // 3. Prepare data for the chart (needs to be in chronological order)
         List<ExamResult> chartResults = new ArrayList<>(pastResults);
         Collections.reverse(chartResults); // Reverse to be oldest first
@@ -120,7 +132,22 @@ public class StudentController {
         List<ExamResult> pastResults = examResultRepository.findByStudent(student);
         model.addAttribute("pastResults", pastResults);
 
-        // 3. Return the new template
+        // 3. Calculate rank for each result
+        Map<Long, Long> rankMap = new LinkedHashMap<>();
+        Map<Long, Long> totalStudentsMap = new LinkedHashMap<>();
+
+        for (ExamResult result : pastResults) {
+            long rank = examResultRepository.countStudentsWithHigherScore(
+                    result.getExam(), result.getScoreAchieved()) + 1;
+            long totalStudents = examResultRepository.countByExam(result.getExam());
+            rankMap.put(result.getId(), rank);
+            totalStudentsMap.put(result.getId(), totalStudents);
+        }
+
+        model.addAttribute("rankMap", rankMap);
+        model.addAttribute("totalStudentsMap", totalStudentsMap);
+
+        // 4. Return the template
         return "student/my_results";
     }
     @GetMapping("/profile")

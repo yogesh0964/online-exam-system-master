@@ -21,7 +21,12 @@
     .score-raw{color:var(--muted);font-size:0.9rem;text-align:center;margin-bottom:1.25rem;}
     .progress-track{height:10px;background:rgba(255,255,255,0.07);border-radius:50px;overflow:hidden;}
     .progress-fill{height:100%;border-radius:50px;transition:width 1s ease;}
-    .result-actions{padding:1.75rem 2.5rem;display:flex;flex-direction:column;gap:0.75rem;}
+    .rank-section{padding:1.25rem 2.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:center;gap:1.5rem;}
+    .rank-badge{text-align:center;}
+    .rank-badge .rank-num{font-family:'Syne',sans-serif;font-size:2.2rem;font-weight:800;color:#f59e0b;line-height:1;}
+    .rank-badge .rank-label{font-size:0.72rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-top:0.2rem;}
+    .rank-divider{width:1px;height:40px;background:var(--border);}
+    .rank-trophy{font-size:2.5rem;}
     .btn-dashboard{display:flex;align-items:center;justify-content:center;gap:0.5rem;background:rgba(255,255,255,0.07);color:var(--text);border-radius:12px;padding:0.85rem;font-size:0.95rem;font-weight:700;font-family:'Syne',sans-serif;text-decoration:none;transition:all 0.2s;border:none;cursor:pointer;}
     .btn-dashboard:hover{background:rgba(255,255,255,0.12);color:var(--text);}
     .btn-review{display:flex;align-items:center;justify-content:center;gap:0.5rem;background:var(--primary);color:white;border-radius:12px;padding:0.85rem;font-size:0.95rem;font-weight:700;font-family:'Syne',sans-serif;text-decoration:none;transition:all 0.2s;border:none;cursor:pointer;box-shadow:0 4px 20px rgba(108,99,255,0.3);}
@@ -55,6 +60,21 @@
         <div class="progress-track">
           <div class="progress-fill"
                th:style="${'width:' + #numbers.formatDecimal(percentage,1,1) + '%;background:' + (isPass ? '#10b981' : '#ef4444')}"></div>
+        </div>
+      </div>
+
+      <!-- RANK SECTION -->
+      <div class="rank-section" th:if="${rank != null}">
+        <span class="rank-trophy">🏅</span>
+        <div class="rank-divider"></div>
+        <div class="rank-badge">
+          <div class="rank-num" th:text="'#' + ${rank}">—</div>
+          <div class="rank-label">Your Rank</div>
+        </div>
+        <div class="rank-divider"></div>
+        <div class="rank-badge">
+          <div class="rank-num" th:text="${totalStudents}">—</div>
+          <div class="rank-label">Total Students</div>
         </div>
       </div>
 

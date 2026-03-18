@@ -120,7 +120,12 @@ public class ExamController {
         // Pass the result ID for the review button
         redirectAttributes.addFlashAttribute("resultId", result.getId());
 
+        // Calculate and pass rank
+        long rank = examResultRepository.countStudentsWithHigherScore(exam, scoreAchieved) + 1;
+        long totalStudents = examResultRepository.countByExam(exam);
+        redirectAttributes.addFlashAttribute("rank", rank);
+        redirectAttributes.addFlashAttribute("totalStudents", totalStudents);
+
         return "redirect:/student/result";
     }
 }
-

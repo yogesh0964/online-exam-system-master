@@ -1,73 +1,111 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>My Results — EduExam</title>
+    <title>Exam Result — EduExam</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
     <style>
-        :root{--primary:#6c63ff;--primary-dark:#4f46e5;--success:#10b981;--danger:#ef4444;--dark:#0f0e17;--surface:#1a1829;--card:#221f35;--text:#fffffe;--muted:#a7a5be;--border:rgba(108,99,255,0.12);}
-        *{box-sizing:border-box;} body{font-family:'DM Sans',sans-serif;background:var(--dark);color:var(--text);min-height:100vh;} h1,h2,h3,h4,h5{font-family:'Syne',sans-serif;} .main{padding:2rem 0 4rem;}
-        .page-header{display:flex;align-items:center;gap:1rem;margin-bottom:2rem;}
-        .page-icon{width:54px;height:54px;border-radius:14px;background:rgba(108,99,255,0.15);display:flex;align-items:center;justify-content:center;font-size:1.5rem;}
-        .page-header h1{font-size:1.6rem;font-weight:800;margin:0;} .page-header p{color:var(--muted);margin:0.15rem 0 0;font-size:0.88rem;}
-        .results-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.25rem;}
-        .result-card{background:var(--card);border:1px solid var(--border);border-radius:18px;overflow:hidden;transition:all 0.3s;display:flex;flex-direction:column;}
-        .result-card:hover{transform:translateY(-5px);border-color:rgba(108,99,255,0.3);box-shadow:0 16px 40px rgba(0,0,0,0.3);}
-        .card-color-bar{height:3px;width:100%;}
-        .card-body-inner{padding:1.4rem;flex:1;display:flex;flex-direction:column;}
-        .result-title{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;margin-bottom:0.3rem;}
-        .result-date{color:var(--muted);font-size:0.78rem;display:flex;align-items:center;gap:0.3rem;margin-bottom:1.1rem;}
-        .score-box{background:var(--surface);border-radius:12px;padding:1rem;text-align:center;margin-bottom:1.1rem;}
-        .score-pct{font-family:'Syne',sans-serif;font-size:2.2rem;font-weight:800;line-height:1;margin-bottom:0.25rem;}
-        .score-raw{color:var(--muted);font-size:0.82rem;}
-        .pct-bar{height:5px;border-radius:50px;background:rgba(255,255,255,0.07);margin-top:0.6rem;overflow:hidden;}
-        .pct-bar-fill{height:100%;border-radius:50px;}
-        .btn-review{display:block;text-align:center;background:rgba(108,99,255,0.15);color:#a78bfa;border-radius:10px;padding:0.65rem;font-size:0.88rem;font-weight:700;font-family:'Syne',sans-serif;text-decoration:none;transition:all 0.2s;margin-top:auto;}
-        .btn-review:hover{background:rgba(108,99,255,0.28);color:#a78bfa;}
-        .empty-card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:5rem 2rem;text-align:center;}
-        .empty-card i{font-size:3.5rem;display:block;margin-bottom:0.75rem;opacity:0.2;}
-        .empty-card h3{font-size:1.2rem;font-weight:800;margin-bottom:0.5rem;}
-        .empty-card p{color:var(--muted);font-size:0.9rem;margin-bottom:1.5rem;}
-        .btn-find{background:var(--primary);color:white;border-radius:50px;padding:0.6rem 1.5rem;font-size:0.9rem;font-weight:700;font-family:'Syne',sans-serif;text-decoration:none;transition:all 0.2s;display:inline-flex;align-items:center;gap:0.4rem;}
-        .btn-find:hover{background:var(--primary-dark);color:white;}
+        :root{--primary:#6c63ff;--success:#10b981;--danger:#ef4444;--dark:#0f0e17;--surface:#1a1829;--card:#221f35;--text:#fffffe;--muted:#a7a5be;--border:rgba(108,99,255,0.12);}
+        *{box-sizing:border-box;} body{font-family:'DM Sans',sans-serif;background:var(--dark);color:var(--text);min-height:100vh;display:flex;flex-direction:column;} h1,h2,h3,h4{font-family:'Syne',sans-serif;}
+        .result-wrap{flex:1;display:flex;align-items:center;justify-content:center;padding:2rem 1rem;}
+        .result-card{background:var(--card);border:1px solid var(--border);border-radius:24px;max-width:520px;width:100%;overflow:hidden;}
+        .result-card-top{padding:3rem 2.5rem 2rem;text-align:center;position:relative;}
+        .result-emoji{font-size:5rem;line-height:1;display:block;margin-bottom:1rem;animation:pop 0.5s ease;}
+        @keyframes pop{0%{transform:scale(0.5);opacity:0;}80%{transform:scale(1.1);}100%{transform:scale(1);opacity:1;}}
+        .result-title{font-size:1.8rem;font-weight:800;letter-spacing:-0.5px;margin-bottom:0.3rem;}
+        .result-sub{color:var(--muted);font-size:0.9rem;}
+        .score-section{padding:1.75rem 2.5rem;border-top:1px solid var(--border);border-bottom:1px solid var(--border);}
+        .score-label{font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);text-align:center;margin-bottom:1rem;}
+        .score-big{font-family:'Syne',sans-serif;font-size:4.5rem;font-weight:800;letter-spacing:-2px;text-align:center;line-height:1;margin-bottom:0.25rem;}
+        .score-raw{color:var(--muted);font-size:0.9rem;text-align:center;margin-bottom:1.25rem;}
+        .progress-track{height:10px;background:rgba(255,255,255,0.07);border-radius:50px;overflow:hidden;}
+        .progress-fill{height:100%;border-radius:50px;transition:width 1s ease;}
+        .rank-section{padding:1.25rem 2.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:center;gap:1.5rem;}
+        .rank-badge{text-align:center;}
+        .rank-badge .rank-num{font-family:'Syne',sans-serif;font-size:2.2rem;font-weight:800;color:#f59e0b;line-height:1;}
+        .rank-badge .rank-label{font-size:0.72rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-top:0.2rem;}
+        .rank-divider{width:1px;height:40px;background:var(--border);}
+        .rank-trophy{font-size:2.5rem;}
+        .btn-dashboard{display:flex;align-items:center;justify-content:center;gap:0.5rem;background:rgba(255,255,255,0.07);color:var(--text);border-radius:12px;padding:0.85rem;font-size:0.95rem;font-weight:700;font-family:'Syne',sans-serif;text-decoration:none;transition:all 0.2s;border:none;cursor:pointer;}
+        .btn-dashboard:hover{background:rgba(255,255,255,0.12);color:var(--text);}
+        .btn-review{display:flex;align-items:center;justify-content:center;gap:0.5rem;background:var(--primary);color:white;border-radius:12px;padding:0.85rem;font-size:0.95rem;font-weight:700;font-family:'Syne',sans-serif;text-decoration:none;transition:all 0.2s;border:none;cursor:pointer;box-shadow:0 4px 20px rgba(108,99,255,0.3);}
+        .btn-review:hover{background:#4f46e5;color:white;transform:translateY(-2px);}
+        .confetti{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;overflow:hidden;z-index:0;}
+        .confetti-piece{position:absolute;top:-10px;width:10px;height:14px;opacity:0;animation:confetti-fall linear infinite;}
+        @keyframes confetti-fall{0%{transform:translateY(-10px) rotate(0deg);opacity:1;}100%{transform:translateY(100vh) rotate(720deg);opacity:0;}}
     </style>
 </head>
 <body>
 <div th:replace="~{fragments :: navbar}"></div>
-<div class="container main">
-    <div class="page-header">
-        <div class="page-icon">📋</div>
-        <div><h1>My Exam History</h1><p>Review all your past scores and attempts</p></div>
-    </div>
 
-    <!-- EMPTY -->
-    <div th:if="${#lists.isEmpty(pastResults)}" class="empty-card">
-        <i class="bi bi-emoji-frown"></i>
-        <h3>No Results Found</h3>
-        <p>You haven't completed any exams yet. Start your first one!</p>
-        <a th:href="@{/student/dashboard}" class="btn-find"><i class="bi bi-pencil-square"></i> Find an Exam</a>
-    </div>
+<div class="result-wrap">
+    <div class="result-card">
+        <th:block th:with="percentage=${(total > 0) ? (score * 100.0) / total : 0}, isPass=${percentage >= 50}">
 
-    <!-- RESULTS GRID -->
-    <div class="results-grid" th:unless="${#lists.isEmpty(pastResults)}">
-        <div th:each="result, i : ${pastResults}" class="result-card">
-            <div class="card-color-bar"
-                 th:style="${i.index % 3 == 0 ? 'background:linear-gradient(90deg,#6c63ff,#a78bfa)' : (i.index % 3 == 1 ? 'background:linear-gradient(90deg,#10b981,#34d399)' : 'background:linear-gradient(90deg,#f59e0b,#fbbf24)')}"></div>
-            <div class="card-body-inner">
-                <div class="result-title" th:text="${result.exam.title}">Exam</div>
-                <div class="result-date"><i class="bi bi-calendar-check-fill"></i><span th:text="${#temporals.format(result.submissionTime,'MMM dd, yyyy')}">Date</span></div>
-                <div class="score-box" th:if="${result.totalMarks > 0}" th:with="p=${result.scoreAchieved * 100.0 / result.totalMarks}">
-                    <div class="score-pct" th:style="${p >= 70 ? 'color:#10b981' : 'color:#ef4444'}" th:text="${#numbers.formatDecimal(p,1,1) + '%'}">0%</div>
-                    <div class="score-raw" th:text="'Score: ' + ${result.scoreAchieved} + ' / ' + ${result.totalMarks}">0/0</div>
-                    <div class="pct-bar"><div class="pct-bar-fill" th:style="${'width:' + #numbers.formatDecimal(p,1,1) + '%;background:' + (p >= 70 ? '#10b981' : '#ef4444')}"></div></div>
-                </div>
-                <div class="score-box" th:if="${result.totalMarks == 0}"><div class="score-pct" style="color:var(--muted);">N/A</div></div>
-                <a th:href="@{/student/review/{id}(id=${result.id})}" class="btn-review"><i class="bi bi-search me-1"></i> Review Answers</a>
+            <!-- TOP -->
+            <div class="result-card-top">
+                <span class="result-emoji" th:text="${isPass ? '🏆' : '😔'}">🏆</span>
+                <h1 class="result-title" th:text="${isPass ? 'Congratulations!' : 'Keep Practicing!'}">Result</h1>
+                <!-- Line 45 ko yeh kar do -->
+                <p th:text="${isPass} ? 'You passed the exam! Great work.' : |Better luck next time. Don't give up!|"></p>
             </div>
-        </div>
+
+            <!-- SCORE SECTION -->
+            <div class="score-section">
+                <div class="score-label">Your Score</div>
+                <div class="score-big" th:style="${isPass ? 'color:#10b981' : 'color:#ef4444'}"
+                     th:text="${#numbers.formatDecimal(percentage,1,1) + '%'}">0%</div>
+                <div class="score-raw" th:text="${score} + ' out of ' + ${total} + ' points'">0/0</div>
+                <div class="progress-track">
+                    <div class="progress-fill"
+                         th:style="${'width:' + #numbers.formatDecimal(percentage,1,1) + '%;background:' + (isPass ? '#10b981' : '#ef4444')}"></div>
+                </div>
+            </div>
+
+            <!-- RANK SECTION -->
+            <div class="rank-section" th:if="${rank != null}">
+                <span class="rank-trophy">🏅</span>
+                <div class="rank-divider"></div>
+                <div class="rank-badge">
+                    <div class="rank-num" th:text="'#' + ${rank}">—</div>
+                    <div class="rank-label">Your Rank</div>
+                </div>
+                <div class="rank-divider"></div>
+                <div class="rank-badge">
+                    <div class="rank-num" th:text="${totalStudents}">—</div>
+                    <div class="rank-label">Total Students</div>
+                </div>
+            </div>
+
+            <!-- ACTIONS -->
+            <div class="result-actions">
+                <a th:if="${resultId != null}" th:href="@{/student/review/{id}(id=${resultId})}" class="btn-review">
+                    <i class="bi bi-search"></i> Review My Answers
+                </a>
+                <a th:href="@{/student/dashboard}" class="btn-dashboard">
+                    <i class="bi bi-house-door-fill"></i> Back to Dashboard
+                </a>
+            </div>
+
+        </th:block>
     </div>
 </div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script th:inline="javascript">
+    const isPass = /*[[${(total > 0) ? (score * 100.0 / total) >= 50 : false}]]*/ false;
+    if (isPass) {
+      // Launch confetti
+      const container = document.createElement('div'); container.className = 'confetti'; document.body.appendChild(container);
+      const colors = ['#6c63ff','#10b981','#f59e0b','#a78bfa','#34d399','#fcd34d'];
+      for (let i = 0; i < 60; i++) {
+        const p = document.createElement('div'); p.className = 'confetti-piece';
+        p.style.cssText = `left:${Math.random()*100}%;animation-duration:${2+Math.random()*3}s;animation-delay:${Math.random()*2}s;background:${colors[Math.floor(Math.random()*colors.length)]};border-radius:${Math.random()>0.5?'50%':'2px'};width:${6+Math.random()*8}px;height:${8+Math.random()*10}px;`;
+        container.appendChild(p);
+      }
+      setTimeout(() => container.remove(), 5000);
+    }
+</script>
 </body>
 </html>
