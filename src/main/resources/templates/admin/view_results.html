@@ -176,7 +176,7 @@
             <table class="results-table" id="resultsTable">
                 <thead>
                 <tr>
-                    <th>#</th>
+                    <th>Rank</th>
                     <th>Student</th>
                     <th>Score</th>
                     <th>Percentage</th>
@@ -185,14 +185,17 @@
                 </thead>
                 <tbody>
                 <tr th:each="result, iterStat : ${results}" class="result-row"
-                    th:attr="data-name=${result.student.fullName}, data-email=${result.student.username}">
+                    th:attr="data-name=${result.student.fullName}, data-email=${result.student.username}"
+                    th:with="r=${rankMap != null ? rankMap[result.id] : iterStat.count}">
 
                     <!-- RANK -->
                     <td>
-                        <span th:if="${iterStat.count == 1}" class="rank-1"><i class="bi bi-trophy-fill"></i></span>
-                        <span th:if="${iterStat.count == 2}" class="rank-2"><i class="bi bi-trophy-fill"></i></span>
-                        <span th:if="${iterStat.count == 3}" class="rank-3"><i class="bi bi-trophy-fill"></i></span>
-                        <span th:if="${iterStat.count > 3}" style="color:var(--muted);font-size:0.85rem;" th:text="${iterStat.count}">4</span>
+                        <span th:if="${r == 1}" style="color:#ffd700;font-size:1.2rem;" title="1st Place">🥇</span>
+                        <span th:if="${r == 2}" style="color:#c0c0c0;font-size:1.2rem;" title="2nd Place">🥈</span>
+                        <span th:if="${r == 3}" style="color:#cd7f32;font-size:1.2rem;" title="3rd Place">🥉</span>
+                        <span th:if="${r > 3}"
+                              style="color:var(--muted);font-size:0.85rem;font-family:'Syne',sans-serif;font-weight:700;"
+                              th:text="'#' + ${r}">4</span>
                     </td>
 
                     <!-- STUDENT -->

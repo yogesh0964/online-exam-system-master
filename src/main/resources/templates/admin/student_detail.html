@@ -93,6 +93,11 @@
         <div class="sb sb2"><div class="sv" style="color:var(--success);" th:text="${passedCount}">0</div><div class="sl">Pass (≥50%)</div></div>
         <div class="sb sb3"><div class="sv" style="color:var(--accent);" th:text="${avgScore} + '%'">0%</div><div class="sl">Avg Score</div></div>
         <div class="sb sb4"><div class="sv" style="color:#a78bfa;" th:text="${highestScore} + '%'">0%</div><div class="sl">Best Score</div></div>
+        <div class="sb" style="border-top:3px solid #f59e0b;">
+            <div class="sv" style="color:#f59e0b;" th:if="${bestRank != null}" th:text="'#' + ${bestRank}">—</div>
+            <div class="sv" style="color:var(--muted);" th:if="${bestRank == null}">—</div>
+            <div class="sl">Best Rank 🏅</div>
+        </div>
     </div>
 
     <div class="cc" th:if="${totalExams > 0}">
@@ -123,6 +128,16 @@
               th:text="${result.scoreAchieved} + ' / ' + ${result.totalMarks}">0/0</span>
                 <th:block th:if="${result.totalMarks > 0}" th:with="p=${result.scoreAchieved * 100.0 / result.totalMarks}">
                     <span th:class="${p >= 50 ? 'bp' : 'bf'}" th:text="${#numbers.formatDecimal(p,1,1)} + '%'">0%</span>
+                </th:block>
+                <!-- RANK BADGE -->
+                <th:block th:if="${rankMap != null and rankMap[result.id] != null}"
+                          th:with="r=${rankMap[result.id]}, tot=${totalStudentsMap[result.id]}">
+                    <span th:if="${r == 1}" title="1st Place" style="font-size:1.1rem;">🥇</span>
+                    <span th:if="${r == 2}" title="2nd Place" style="font-size:1.1rem;">🥈</span>
+                    <span th:if="${r == 3}" title="3rd Place" style="font-size:1.1rem;">🥉</span>
+                    <span th:if="${r > 3}"
+                          style="background:rgba(245,158,11,0.12);color:#f59e0b;border-radius:50px;padding:0.22rem 0.7rem;font-size:0.78rem;font-weight:700;"
+                          th:text="'#' + ${r} + '/' + ${tot}">rank</span>
                 </th:block>
                 <i class="bi bi-chevron-down chv" th:id="|c${i.index}|"></i>
             </div>

@@ -125,10 +125,24 @@ public class AdminController {
         Exam exam = examRepository.findById(examId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid exam Id:" + examId));
 
-        List<ExamResult> results = examResultRepository.findByExam(exam);
+        // Score ke hisab se descending order mein results (highest first = rank 1)
+        List<ExamResult> results = examResultRepository.findByExamOrderByScoreAchievedDesc(exam);
+
+        // Har result ka real rank calculate karo
+        java.util.Map<Long, Long> rankMap = new java.util.LinkedHashMap<>();
+        java.util.Map<Long, Long> totalStudentsMap = new java.util.LinkedHashMap<>();
+        long totalStudents = examResultRepository.countByExam(exam);
+
+        for (ExamResult result : results) {
+            long rank = examResultRepository.countStudentsWithHigherScore(exam, result.getScoreAchieved()) + 1;
+            rankMap.put(result.getId(), rank);
+            totalStudentsMap.put(result.getId(), totalStudents);
+        }
 
         model.addAttribute("exam", exam);
         model.addAttribute("results", results);
+        model.addAttribute("rankMap", rankMap);
+        model.addAttribute("totalStudentsMap", totalStudentsMap);
 
         return "admin/view_results";
     }
@@ -325,6 +339,21 @@ public class AdminController {
         model.addAttribute("highestScore", Math.round(highestScore * 10.0) / 10.0);
         model.addAttribute("chartLabels", chartLabels);
         model.addAttribute("chartScores", chartScores);
+
+        // Har exam ka rank calculate karo
+        java.util.Map<Long, Long> rankMap = new java.util.LinkedHashMap<>();
+        java.util.Map<Long, Long> totalStudentsMap = new java.util.LinkedHashMap<>();
+        long bestRank = Long.MAX_VALUE;
+        for (ExamResult r : results) {
+            long rank = examResultRepository.countStudentsWithHigherScore(r.getExam(), r.getScoreAchieved()) + 1;
+            long total = examResultRepository.countByExam(r.getExam());
+            rankMap.put(r.getId(), rank);
+            totalStudentsMap.put(r.getId(), total);
+            if (rank < bestRank) bestRank = rank;
+        }
+        model.addAttribute("rankMap", rankMap);
+        model.addAttribute("totalStudentsMap", totalStudentsMap);
+        model.addAttribute("bestRank", results.isEmpty() ? null : bestRank);
 
         return "admin/student_detail";
     }
